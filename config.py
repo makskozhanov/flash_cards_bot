@@ -11,7 +11,7 @@ class PostgresConf(Enum):
     HOST = os.getenv('POSTGRES_HOST')
     USER = os.getenv('POSTGRES_USER')
     PASSWORD = os.getenv('POSTGRES_PASSWORD')
-    ADDRESS = ''.join(('postgresql+asyncpg://', USER, ':', PASSWORD, '@', HOST, '/'))
+    ADDRESS = ''.join(('postgresql+psycopg2://', USER, ':', PASSWORD, '@', HOST, '/'))
 
 
 class RedisConf(Enum):
