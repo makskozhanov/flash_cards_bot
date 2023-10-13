@@ -19,7 +19,7 @@ def get_user_from_cache(user_id: int):
 
 def get_user_from_db(user_id: int):
     """
-    Retrive user from datdbase
+    Retrieve user from database
     :param user_id: user id got from user message object [telebot.types.Message]
     :return: user - if user exists, else - None
     """

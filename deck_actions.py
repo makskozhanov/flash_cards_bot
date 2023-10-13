@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-
 from postgres.init import engine
 from postgres.models import User, Deck
 from exceptions import PostgresError
+from redis_init import redis_db
 
 
 class DeckAction:
@@ -33,6 +33,11 @@ class DeckAction:
             else:
                 self._commit_action(data, session)  # step 2
                 session.commit()  # step 3
+                self._update_cache()
+
+
+    def _update_cache(self):
+        raise NotImplementedError
 
     def _commit_action(self, data, session):
         """
@@ -53,6 +58,9 @@ class DeleteDeck(DeckAction):
         user = session.get(User, str(self._user_id))
         user.decks.remove(data)
 
+    def _update_cache(self):
+        redis_db.hdel(self._deck_name)
+
 
 class CreateDeck(DeckAction):
     def __init__(self, user_id, deck_name, bot):
@@ -61,7 +69,12 @@ class CreateDeck(DeckAction):
 
     def _commit_action(self, data, session):
         user = data
-        user.decks.append(Deck(name=self._deck_name, deck_type='straight'))
+        self._deck = Deck(name=self._deck_name, deck_type='straight')
+        user.decks.append(self._deck)
+
+    def _update_cache(self):
+        print(self._deck.id)
+        redis_db.hset(self._user_id, mapping={self._deck_name: self._deck.id})
 
 
 def get_user_decks(user_id: int):
@@ -73,4 +86,8 @@ def get_user_decks(user_id: int):
             raise PostgresError('Problems with Postgres')
         else:
             session.rollback()
-            return user.decks
+            user_decks = {}
+            for deck in user.decks:
+                user_decks[deck.name] = deck.id
+            return user_decks
+
