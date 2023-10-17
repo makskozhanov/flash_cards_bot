@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from postgres.init import engine
 from postgres.models import User
-from redis_init import redis_db
+from redis_db.redis_init import redis_db
 from exceptions import RedisError
 
 

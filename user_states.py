@@ -5,5 +5,5 @@ class UserStates(StatesGroup):
     firstLogin = State()
     menu = State()
     create_deck = State()
+    delete_deck = State()
     add_card = State()
-

@@ -1,7 +1,7 @@
-import redis
+import redis_db
 from exceptions import RedisError
 
-redis_base = redis.StrictRedis(host='localhost', port=6379, db=0, charset='utf-8', decode_responses='True')
+redis_base = redis_db.StrictRedis(host='localhost', port=6379, db=0, charset='utf-8', decode_responses='True')
 
 
 class User:

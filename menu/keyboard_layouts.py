@@ -8,6 +8,7 @@ menu_markup = quick_markup(
     },
     row_width=1
 )
+
 first_login_markup = quick_markup(
     {
         'Создать колоду': {'callback_data': 'create_deck'},
@@ -15,4 +16,12 @@ first_login_markup = quick_markup(
 
     },
     row_width=1
+)
+
+deck_menu_markup = quick_markup(
+    {
+        'Повторять карточки': {'callback_data': 'learn'},
+        'Изменить тип колоды': {'callback_data': 'change_deck_type'},
+        'Удалить колоду': {'callback_data': 'delete_deck'}
+    }
 )
