@@ -1,5 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy import String, Integer, Boolean, ForeignKey
+from sqlalchemy import String, Integer, Boolean, ForeignKey, MetaData
 from postgres.init import engine
 from typing import List, Dict
 
@@ -23,6 +23,16 @@ class Deck(BaseModel):
     name: Mapped[str] = mapped_column(String(300))
     deck_type: Mapped[str] = mapped_column(String(50))
     user: Mapped['User'] = relationship(back_populates='decks')
+    cards: Mapped[List['Card']] = relationship(back_populates='deck', cascade='all, delete-orphan')
+
+
+class Card(BaseModel):
+    __tablename__ = 'cards'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    deck_id: Mapped[str] = mapped_column(ForeignKey('decks.id'))
+    face: Mapped[str] = mapped_column(String(300))
+    back: Mapped[str] = mapped_column(String(300))
+    deck: Mapped['Deck'] = relationship(back_populates='cards')
 
 
 BaseModel.metadata.create_all(engine)

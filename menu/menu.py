@@ -2,6 +2,7 @@ from deck_actions import get_user_decks
 from telebot.util import quick_markup
 from telebot.types import InlineKeyboardMarkup
 from redis_db.redis_init import redis_db
+from menu.keyboard_layouts import no_decks_markup
 
 
 async def show_menu(bot, message) -> None:
@@ -11,15 +12,18 @@ async def show_menu(bot, message) -> None:
     :param message:
     :return: None
     """
-    print('MENU')
-    user_id = message.from_user.id
+    user_id = message.chat.id
     record_name_in_cache = str(user_id) + ':decks'
     if not redis_db.exists(record_name_in_cache):
         user_decks = get_user_decks(user_id)
-        redis_db.hset(record_name_in_cache, mapping=user_decks)
+        if len(user_decks) > 0:
+            redis_db.hset(record_name_in_cache, mapping=user_decks)
+            menu_markup = create_menu_markup(user_decks)
+        else:
+            menu_markup = no_decks_markup
     else:
         user_decks = redis_db.hgetall(record_name_in_cache)
-    menu_markup = create_menu_markup(user_decks)
+        menu_markup = create_menu_markup(user_decks)
     await bot.send_message(message.chat.id, 'Меню', reply_markup=menu_markup)
 
 

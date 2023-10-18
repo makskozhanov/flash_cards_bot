@@ -9,7 +9,7 @@ menu_markup = quick_markup(
     row_width=1
 )
 
-first_login_markup = quick_markup(
+no_decks_markup = quick_markup(
     {
         'Создать колоду': {'callback_data': 'create_deck'},
         'Демо': {'callback_data': 'demo'},
@@ -22,6 +22,14 @@ deck_menu_markup = quick_markup(
     {
         'Повторять карточки': {'callback_data': 'learn'},
         'Изменить тип колоды': {'callback_data': 'change_deck_type'},
+        'Добавить карточку': {'callback_data': 'add_card'},
         'Удалить колоду': {'callback_data': 'delete_deck'}
+    }
+)
+
+card_add_markup = quick_markup(
+    {
+        'Добавить еще карточку': {'callback_data': 'add_card'},
+        'Вернуться в меню': {'callback_data': 'show_menu'}
     }
 )
