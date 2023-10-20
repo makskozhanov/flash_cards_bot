@@ -27,3 +27,7 @@ class SetCardFace(CacheAction):
     def update_cache(self):
         redis_db.hset(self._user_id, mapping={'card_face': self._value})
 
+
+class SetCardBack(CacheAction):
+    def update_cache(self):
+        redis_db.hset(self._user_id, mapping={'card_back': self._value})

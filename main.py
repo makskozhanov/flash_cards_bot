@@ -13,6 +13,14 @@ bot.register_message_handler(add_card_back, state=UserStates.add_card_back, pass
 
 
 bot.register_callback_query_handler(show_menu_handler, func=lambda c: c.data == 'show_menu', pass_bot=True)
+
+bot.register_callback_query_handler(learn_cards_handler, func=lambda c: c.data == 'learn', pass_bot=True)
+bot.register_callback_query_handler(learn_all_handler, func=lambda c: c.data == 'learn_all', pass_bot=True)
+
+
+bot.register_callback_query_handler(show_card_face, func=lambda c: c.data == 'show_card_face', pass_bot=True)
+bot.register_callback_query_handler(show_card_back, func=lambda c: c.data == 'show_card_back', pass_bot=True)
+
 bot.register_callback_query_handler(create_deck_handler, func=lambda c: c.data == 'create_deck', pass_bot=True)
 bot.register_callback_query_handler(delete_deck_handler, func=lambda c: c.data == 'delete_deck', pass_bot=True)
 bot.register_callback_query_handler(add_card_face_handler, func=lambda c: c.data == 'add_card', pass_bot=True)

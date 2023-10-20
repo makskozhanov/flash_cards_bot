@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from postgres.init import engine
-from postgres.models import User, Deck
+from postgres.models import User, Deck, Card
 from exceptions import PostgresError
 from redis_db.redis_init import redis_db
 
@@ -67,13 +67,47 @@ class CreateDeck(DeckAction):
         self._request = select(User).where(User.id == str(self._user_id))
 
     def _commit_action(self, data, session):
-        user = data
+        self._user = data
         self._deck = Deck(name=self._deck_name, deck_type='straight')
-        user.decks.append(self._deck)
+        self._user.decks.append(self._deck)
 
     def _update_cache(self):
         print(self._deck.id)
         redis_db.hset(self._user_id + ':decks', mapping={self._deck_name: self._deck.id})
+
+
+class AddCard(DeckAction):
+    def __init__(self, user_id, deck_name, bot):
+        super().__init__(user_id, deck_name, bot)
+        self._card_face = redis_db.hget(user_id, 'card_face')
+        self._card_back = redis_db.hget(user_id, 'card_back')
+        self._deck_id = redis_db.hget(self._user_id + ':decks', self._deck_name)
+        self._request = select(Deck).where(Deck.id == self._deck_id)
+
+    def _commit_action(self, data, session):
+        self._deck = data
+        self._card = Card(face=self._card_face, back=self._card_back)
+        self._deck.cards.append(self._card)
+
+    def _update_cache(self):
+        pass
+
+
+class GetCards(DeckAction):
+    def __init__(self, user_id, deck_name, bot):
+        super().__init__(user_id, deck_name, bot)
+        self._deck_id = redis_db.hget(self._user_id + ':decks', self._deck_name)
+        self._request = select(Deck).where(Deck.id == self._deck_id)
+
+    def _commit_action(self, data, session):
+        self._deck = data
+        print(self._deck.cards)
+
+    def _update_cache(self):
+        for card in self._deck.cards:
+            redis_db.hset(f'{self._user_id}:{self._deck_name}:{card.id}',
+                          items=['face', card.face, 'back', card.back])
+            redis_db.lpush(f'{self._user_id}:{self._deck_name}:cards', card.id)
 
 
 def get_user_decks(user_id: any):
