@@ -3,10 +3,11 @@ from telebot.types import CallbackQuery
 from user_states import UserStates
 from deck_actions import get_deck_name_by_id, GetCards, DeleteCard
 from menu.keyboard_layouts import deck_menu_markup, learn_mode_markup, card_learn_markup, next_card_markup, empty_deck_markup
-from redis_db.cache_actions import SetCurrentDeck, SetCardFace, SetCardBack
+from redis_db.cache_actions import SetCurrentDeck, SetCardFace, SetCardBack, SetCardId
 from redis_db.redis_init import redis_db
 from menu.menu import show_menu
 from exceptions import EmptyDeckError
+from telebot.asyncio_helper import ApiTelegramException
 
 
 async def create_deck_handler(callback: CallbackQuery, bot: AsyncTeleBot):
@@ -26,21 +27,25 @@ async def deck_menu_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     deck_name = get_deck_name_by_id(callback.data)
     SetCurrentDeck(user_id, deck_name).update_cache()
     await bot.send_message(callback.message.chat.id, 'Выбрана колода: %s' % deck_name, reply_markup=deck_menu_markup)
+    await bot.delete_message(callback.message.chat.id, callback.message.id)
     await bot.answer_callback_query(callback.id)
 
 
 async def add_card_face_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = callback.from_user.id
     await bot.set_state(user_id, UserStates.add_card_face)
+    await bot.delete_message(callback.message.chat.id, callback.message.id)
     await bot.answer_callback_query(callback.id, text='Введи текст лицевой стороны карточки:', show_alert=True)
 
 
 async def show_menu_handler(callback: CallbackQuery, bot: AsyncTeleBot):
+    await bot.delete_message(callback.message.chat.id, callback.message.id)
     await bot.answer_callback_query(callback.id)
     await show_menu(bot, callback.message)
 
 
 async def learn_cards_handler(callback: CallbackQuery, bot: AsyncTeleBot):
+    await bot.delete_message(callback.message.chat.id, callback.message.id)
     await bot.answer_callback_query(callback.id)
     await bot.send_message(callback.message.chat.id, 'Выбери режим повторения', reply_markup=learn_mode_markup)
 
@@ -66,11 +71,15 @@ async def delete_card_handler(callback: CallbackQuery, bot: AsyncTeleBot):
 
 def save_current_card(user_id, deck_name):
     card_id = redis_db.lpop(f'{user_id}:{deck_name}:cards')
+
     if card_id is None:
         raise EmptyDeckError
+
     card = redis_db.hgetall(f'{user_id}:{deck_name}:{card_id}')
-    SetCardFace(user_id, card['face'], card_id).update_cache()
+
+    SetCardFace(user_id, card['face']).update_cache()
     SetCardBack(user_id, card['back']).update_cache()
+    SetCardId(user_id, object_id=card_id).update_cache()
 
 
 async def show_card_face(callback: CallbackQuery, bot: AsyncTeleBot):
@@ -83,14 +92,23 @@ async def show_card_face(callback: CallbackQuery, bot: AsyncTeleBot):
         await bot.send_message(user_id, 'Мы повторили все карточки', reply_markup=empty_deck_markup)
     else:
         card_face = redis_db.hget(user_id, 'card_face')
-        await bot.send_message(user_id, card_face, reply_markup=card_learn_markup)
+        await bot.send_message(user_id, '‾‾‾‾‾‾\n' + card_face, reply_markup=card_learn_markup)
     finally:
         await bot.answer_callback_query(callback.id)
+        try:
+            await bot.edit_message_reply_markup(user_id, callback.message.id, reply_markup=None)
+        except ApiTelegramException:
+            pass
 
 
 async def show_card_back(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = callback.message.chat.id
     card_back = redis_db.hget(user_id, 'card_back')
 
-    await bot.send_message(user_id, card_back, reply_markup=next_card_markup)
+    try:
+        await bot.edit_message_reply_markup(user_id, callback.message.id, reply_markup=None)
+    except ApiTelegramException:
+        pass
+
+    await bot.send_message(user_id, card_back + '\n_______', reply_markup=next_card_markup)
     await bot.answer_callback_query(callback.id)

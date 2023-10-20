@@ -24,7 +24,7 @@ async def show_menu(bot, message) -> None:
     else:
         user_decks = redis_db.hgetall(record_name_in_cache)
         menu_markup = create_menu_markup(user_decks)
-    await bot.send_message(message.chat.id, 'Меню', reply_markup=menu_markup)
+    await bot.send_message(message.chat.id, 'ㅤ\n<b>Главное меню</b>\nㅤ', reply_markup=menu_markup, parse_mode='html')
 
 
 def create_menu_markup(user_decks) -> InlineKeyboardMarkup:

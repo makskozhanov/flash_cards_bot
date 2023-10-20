@@ -1,7 +1,8 @@
 import asyncio
 from telebot import asyncio_filters
 from bot_init import bot
-from message_handlers import *
+from message_handlers.message_handlers import *
+from message_handlers.start import start
 from button_handlers import *
 from user_states import UserStates
 

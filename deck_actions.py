@@ -72,14 +72,12 @@ class CreateDeck(DeckAction):
         self._user.decks.append(self._deck)
 
     def _update_cache(self):
-        print(self._deck.id)
         redis_db.hset(self._user_id + ':decks', mapping={self._deck_name: self._deck.id})
 
 
 class AddCard(DeckAction):
     def __init__(self, user_id, deck_name, bot):
         super().__init__(user_id, deck_name, bot)
-        print('ADD CARD!', redis_db.hget(user_id, 'card_face'))
         self._card_face = redis_db.hget(user_id, 'card_face')
         self._card_back = redis_db.hget(user_id, 'card_back')
         self._deck_id = redis_db.hget(self._user_id + ':decks', self._deck_name)
@@ -118,7 +116,6 @@ class GetCards(DeckAction):
 
     def _commit_action(self, data, session):
         self._deck = data
-        print(self._deck.cards)
 
     def _update_cache(self):
         for card in self._deck.cards:

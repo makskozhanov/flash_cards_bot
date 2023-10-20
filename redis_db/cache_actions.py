@@ -8,7 +8,7 @@ class CacheAction:
     def __init__(self, user_id: int, value=None, object_id=None):
         self._user_id = str(user_id)
         self._value = value
-        self._id = object_id
+        self._object_id = object_id
 
     def update_cache(self):
         raise NotImplementedError
@@ -27,10 +27,15 @@ class DelCurrentDeck(CacheAction):
 class SetCardFace(CacheAction):
     def update_cache(self):
         redis_db.hset(self._user_id, mapping={'card_face': self._value})
-        if self._id is not None:
-            redis_db.hset(self._user_id, mapping={'id': self._id})
 
 
 class SetCardBack(CacheAction):
     def update_cache(self):
         redis_db.hset(self._user_id, mapping={'card_back': self._value})
+
+
+class SetCardId(CacheAction):
+    def update_cache(self):
+        redis_db.hset(self._user_id, mapping={'id': self._object_id})
+
+
