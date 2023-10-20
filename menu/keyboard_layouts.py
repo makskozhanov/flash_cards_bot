@@ -52,6 +52,7 @@ card_learn_markup = quick_markup(
 next_card_markup = quick_markup(
     {
         'Показать следующую карточку': {'callback_data': 'show_card_face'},
+        'Удалить карточку': {'callback_data': 'delete_card'},
         'Вернуться в меню': {'callback_data': 'show_menu'}
     }
 )

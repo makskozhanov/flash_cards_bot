@@ -50,6 +50,7 @@ async def delete_deck(message: Message, bot: AsyncTeleBot):
 
 async def add_card_face(message: Message, bot: AsyncTeleBot):
     user_id = message.from_user.id
+    print('USER ID:', user_id)
     SetCardFace(user_id, message.text).update_cache()
     await bot.set_state(user_id, UserStates.add_card_back)
     await bot.send_message(message.chat.id, 'Теперь введи оборотную сторону:')

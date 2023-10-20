@@ -14,7 +14,7 @@ class DeckAction:
         2) Performing action with data
         3) Committing to database
     """
-    def __init__(self, user_id, deck_name, bot):
+    def __init__(self, user_id, deck_name, bot, card_id=None):
         self._user_id = str(user_id)
         self._deck_name = deck_name
         self._bot = bot
@@ -79,6 +79,7 @@ class CreateDeck(DeckAction):
 class AddCard(DeckAction):
     def __init__(self, user_id, deck_name, bot):
         super().__init__(user_id, deck_name, bot)
+        print('ADD CARD!', redis_db.hget(user_id, 'card_face'))
         self._card_face = redis_db.hget(user_id, 'card_face')
         self._card_back = redis_db.hget(user_id, 'card_back')
         self._deck_id = redis_db.hget(self._user_id + ':decks', self._deck_name)
@@ -91,6 +92,22 @@ class AddCard(DeckAction):
 
     def _update_cache(self):
         pass
+
+
+class DeleteCard(DeckAction):
+    def __init__(self, user_id, deck_name, bot, card_id):
+        super().__init__(user_id, deck_name, bot)
+        self._card_id = card_id
+        self._deck_id = redis_db.hget(self._user_id + ':decks', self._deck_name)
+        self._request = select(Deck).where(Deck.id == self._deck_id)
+
+    def _commit_action(self, data, session):
+        deck = data
+        card = session.get(Card, str(self._card_id))
+        deck.cards.remove(card)
+
+    def _update_cache(self):
+        redis_db.delete(f'{self._user_id}:{self._deck_name}:{self._card_id}')
 
 
 class GetCards(DeckAction):
