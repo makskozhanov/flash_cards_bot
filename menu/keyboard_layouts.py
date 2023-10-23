@@ -44,16 +44,12 @@ learn_mode_markup = quick_markup(
     }
 )
 
-card_learn_markup = quick_markup(
+card_markup = quick_markup(
     {
-        'Показать оборот': {'callback_data': 'show_card_back'},
-        'Вернуться в меню': {'callback_data': 'show_menu'}
-    }
-)
-
-next_card_markup = quick_markup(
-    {
-        'Показать следующую карточку': {'callback_data': 'show_card_face'},
+        'Завтра': {'callback_data': 'repeat_tomorrow'},
+        'Через неделю': {'callback_data': 'repeat_week'},
+        'Через месяц': {'callback_data': 'repeat_month'},
+        'Повторить еще': {'callback_data': 'repeat_now'},
         'Удалить карточку': {'callback_data': 'delete_card'},
         'Вернуться в меню': {'callback_data': 'show_menu'}
     }

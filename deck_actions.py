@@ -4,6 +4,14 @@ from postgres.init import engine
 from postgres.models import User, Deck, Card
 from exceptions import PostgresError
 from redis_db.redis_init import redis_db
+from datetime import date, timedelta
+from enum import Enum
+
+
+class RepetitionPeriods(Enum):
+    DAY = timedelta(days=1)
+    WEEK = timedelta(days=7)
+    MONTH = timedelta(days=30)
 
 
 class DeckAction:
@@ -19,6 +27,7 @@ class DeckAction:
         self._deck_name = deck_name
         self._bot = bot
         self._request = None
+        self._card_id = card_id
 
     def perform(self) -> None:
         """
@@ -118,10 +127,53 @@ class GetCards(DeckAction):
         self._deck = data
 
     def _update_cache(self):
+        redis_db.delete(f'{self._user_id}:{self._deck_name}:cards')  # Clear list of words to repeat
         for card in self._deck.cards:
             redis_db.hset(f'{self._user_id}:{self._deck_name}:{card.id}',
                           items=['face', card.face, 'back', card.back])
-            redis_db.lpush(f'{self._user_id}:{self._deck_name}:cards', card.id)
+            redis_db.lpush(f'{self._user_id}:{self._deck_name}:cards', card.id)  # Create new list of words to repeat
+
+
+class GetNewCards(GetCards):
+    def _update_cache(self):
+        redis_db.delete(f'{self._user_id}:{self._deck_name}:cards')  # Clear list of words to repeat
+        for card in self._deck.cards:
+            if card.repetitions < 5:
+                redis_db.hset(f'{self._user_id}:{self._deck_name}:{card.id}',
+                              items=['face', card.face, 'back', card.back])
+                redis_db.lpush(f'{self._user_id}:{self._deck_name}:cards', card.id)  # Create new list of words to repeat
+
+
+class IncreaseCardRepetitions(DeckAction):
+    def __init__(self, user_id, deck_name, bot, card_id):
+        super().__init__(user_id, deck_name, bot, card_id)
+        self._deck_id = redis_db.hget(self._user_id + ':decks', self._deck_name)
+        self._request = select(Card).where(Card.id == card_id).where(Card.deck_id == self._deck_id)
+
+    def _commit_action(self, data, session):
+        self._card = data
+        self._card.repetitions += 1
+
+    def _update_cache(self):
+        pass
+
+
+class SetCardNextRepetition(DeckAction):
+    def __init__(self, user_id, deck_name, bot, card_id, period):
+        super().__init__(user_id, deck_name, bot, card_id)
+        self._period = period.value
+        self._deck_id = redis_db.hget(self._user_id + ':decks', self._deck_name)
+        self._request = select(Card).where(Card.id == card_id).where(Card.deck_id == self._deck_id)
+
+    def _commit_action(self, data, session):
+        self._card = data
+        if self._card.next_repetition is not None:
+            self._card.next_repetition += self._period
+        else:
+            self._card.next_repetition = date.today()
+
+    def _update_cache(self):
+        pass
 
 
 def get_user_decks(user_id: any):

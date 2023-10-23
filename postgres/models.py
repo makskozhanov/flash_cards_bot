@@ -1,7 +1,7 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy import String, Integer, Boolean, ForeignKey, MetaData
+from sqlalchemy import String, Integer, Boolean, ForeignKey, Date
 from postgres.init import engine
-from typing import List, Dict
+from typing import List, Optional
 
 
 class BaseModel(DeclarativeBase):
@@ -32,6 +32,8 @@ class Card(BaseModel):
     deck_id: Mapped[str] = mapped_column(ForeignKey('decks.id'))
     face: Mapped[str] = mapped_column(String(300))
     back: Mapped[str] = mapped_column(String(300))
+    next_repetition: Mapped[Optional[str]] = mapped_column(Date, default=None)
+    repetitions: Mapped[int] = mapped_column(Integer, default=0)
     deck: Mapped['Deck'] = relationship(back_populates='cards')
 
 
