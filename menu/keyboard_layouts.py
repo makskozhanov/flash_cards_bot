@@ -55,10 +55,10 @@ deck_mode_markup = quick_markup(
 
 card_markup = quick_markup(
     {
-        'Завтра': {'callback_data': 'repeat_tomorrow'},
-        'Через неделю': {'callback_data': 'repeat_week'},
-        'Через месяц': {'callback_data': 'repeat_month'},
-        'Повторить еще': {'callback_data': 'repeat_now'},
+        'Завтра': {'callback_data': 'repeat_card:tomorrow'},
+        'Через неделю': {'callback_data': 'repeat_card:week'},
+        'Через месяц': {'callback_data': 'repeat_card:month'},
+        'Повторить еще': {'callback_data': 'repeat_card:now'},
         'Удалить карточку': {'callback_data': 'delete_card'},
         'Вернуться в меню': {'callback_data': 'show_menu'}
     }

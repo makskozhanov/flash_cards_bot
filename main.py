@@ -28,9 +28,7 @@ bot.register_callback_query_handler(deck_mode_handler, func=lambda c: c.data.sta
 
 bot.register_callback_query_handler(show_card, func=lambda c: c.data == 'show_card_face', pass_bot=True)
 
-bot.register_callback_query_handler(repeat_card_tomorrow, func=lambda c: c.data == 'repeat_tomorrow', pass_bot=True)
-bot.register_callback_query_handler(repeat_card_week, func=lambda c: c.data == 'repeat_week', pass_bot=True)
-bot.register_callback_query_handler(repeat_card_month, func=lambda c: c.data == 'repeat_month', pass_bot=True)
+bot.register_callback_query_handler(repeat_card_handler, func=lambda c: c.data.startswith('repeat_card'), pass_bot=True)
 
 
 bot.register_callback_query_handler(create_deck_handler, func=lambda c: c.data == 'create_deck', pass_bot=True)

@@ -9,7 +9,7 @@ from menu.menu import show_menu
 from exceptions import EmptyDeckError
 from telebot.asyncio_helper import ApiTelegramException
 from random import randint
-
+from bot_message import BotMessages
 
 # ======================================================================================================================
 # Deck Handlers
@@ -136,28 +136,22 @@ async def show_card(callback: CallbackQuery, bot: AsyncTeleBot):
             pass
 
 
-async def repeat_card_tomorrow(callback: CallbackQuery, bot: AsyncTeleBot):
-    await repeat_card(callback, bot, RepetitionPeriods.DAY)
-    await bot.answer_callback_query(callback.id, 'Повторим карточку завтра')
-    await show_card(callback, bot)
-
-
-async def repeat_card_week(callback: CallbackQuery, bot: AsyncTeleBot):
-    await repeat_card(callback, bot, RepetitionPeriods.WEEK)
-    await bot.answer_callback_query(callback.id, 'Повторим карточку через неделю')
-    await show_card(callback, bot)
-
-
-async def repeat_card_month(callback: CallbackQuery, bot: AsyncTeleBot):
-    await repeat_card(callback, bot, RepetitionPeriods.MONTH)
-    await bot.answer_callback_query(callback.id, 'Повторим карточку через месяц')
-    await show_card(callback, bot)
-
-
-async def repeat_card(callback: CallbackQuery, bot: AsyncTeleBot, period):
+async def repeat_card_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = str(callback.message.chat.id)
     card_id = redis_db.hget(user_id, 'id')
     deck_name = redis_db.hget(user_id, 'current_deck')
+
+    repeat_mode = callback.data.split(':')[1]
+
+    if repeat_mode == 'tomorrow':
+        period = RepetitionPeriods.DAY
+        reply = BotMessages.card_repeat_tomorrow
+    elif repeat_mode == 'week':
+        period = RepetitionPeriods.WEEK
+        reply = BotMessages.card_repeat_week
+    else:
+        period = RepetitionPeriods.MONTH
+        reply = BotMessages.card_repeat_month
 
     action = IncreaseCardRepetitions(user_id, deck_name, card_id)
     action.perform()
@@ -169,4 +163,7 @@ async def repeat_card(callback: CallbackQuery, bot: AsyncTeleBot, period):
         await bot.edit_message_reply_markup(user_id, callback.message.id, reply_markup=None)
     except ApiTelegramException:
         pass
+
+    await bot.answer_callback_query(callback.id, reply)
+    await show_card(callback, bot)
 
