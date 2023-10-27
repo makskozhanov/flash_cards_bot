@@ -1,4 +1,4 @@
-from deck_actions import get_user_decks
+from deck_actions import GetDecks
 from telebot.util import quick_markup
 from telebot.types import InlineKeyboardMarkup
 from redis_db.redis_init import redis_db
@@ -12,18 +12,20 @@ async def show_menu(bot, message) -> None:
     :param message:
     :return: None
     """
+
     user_id = message.chat.id
     record_name_in_cache = str(user_id) + ':decks'
-    if not redis_db.exists(record_name_in_cache):
-        user_decks = get_user_decks(user_id)
-        if len(user_decks) > 0:
-            redis_db.hset(record_name_in_cache, mapping=user_decks)
-            menu_markup = create_menu_markup(user_decks)
-        else:
-            menu_markup = no_decks_markup
-    else:
-        user_decks = redis_db.hgetall(record_name_in_cache)
+
+    if not redis_db.exists(record_name_in_cache):  # Если нет колод в кэше - берем их из бд и сохраняем в кэш
+        action = GetDecks(user_id)
+        action.perform()
+
+    user_decks = redis_db.hgetall(record_name_in_cache)
+
+    if len(user_decks) > 0:
         menu_markup = create_menu_markup(user_decks)
+    else:
+        menu_markup = no_decks_markup
     await bot.send_message(message.chat.id, 'ㅤ\n<b>Главное меню</b>\nㅤ', reply_markup=menu_markup, parse_mode='html')
 
 

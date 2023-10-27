@@ -1,3 +1,4 @@
+import menu.menu
 from user_states import UserStates
 from telebot.types import Message
 from telebot.async_telebot import AsyncTeleBot
@@ -9,10 +10,12 @@ from redis_db.cache_actions import DelCurrentDeck, SetCardFace, SetCardBack
 
 
 async def create_deck(message: Message, bot: AsyncTeleBot):
-    action = CreateDeck(message.from_user.id, message.text, bot)
+    action = CreateDeck(message.from_user.id, message.text)
     action.perform()
-    await bot.set_state(message.from_user.id, UserStates.add_card_face)
+    #await bot.set_state(message.from_user.id, UserStates.add_card_face)
+    await bot.set_state(message.from_user.id, UserStates.menu)
     await bot.send_message(message.chat.id, f'Колода {message.text} создана', reply_markup=empty_deck_markup)
+    await menu.menu.show_menu(bot, message)
 
 
 async def delete_deck(message: Message, bot: AsyncTeleBot):
@@ -20,7 +23,7 @@ async def delete_deck(message: Message, bot: AsyncTeleBot):
     deck_name = redis_db.hget(user_id, 'current_deck')
 
     if message.text.lower() == 'удалить':
-        action = DeleteDeck(user_id, deck_name, bot)
+        action = DeleteDeck(user_id, deck_name)
         action.perform()
         DelCurrentDeck(user_id).update_cache()
         await bot.set_state(user_id, UserStates.menu)
@@ -39,7 +42,7 @@ async def add_card_back(message: Message, bot: AsyncTeleBot):
     deck_name = redis_db.hget(user_id, 'current_deck')
 
     SetCardBack(user_id, message.text).update_cache()
-    action = AddCard(user_id, deck_name, bot)
+    action = AddCard(user_id, deck_name)
     action.perform()
 
     await bot.set_state(user_id, UserStates.add_card_more)

@@ -5,13 +5,23 @@ class CacheAction:
     """
     Base class for actions with cache
     """
-    def __init__(self, user_id: int, value=None, object_id=None):
+    def __init__(self, user_id: any, value: any = None, object_id: any = None):
         self._user_id = str(user_id)
-        self._value = value
-        self._object_id = object_id
+        self._value = str(value)
+        self._object_id = str(object_id)
 
     def update_cache(self):
         raise NotImplementedError
+
+
+class DeleteDeck(CacheAction):
+    def update_cache(self):
+        redis_db.hdel(self._user_id + ':decks', self._value)
+
+
+class AddDeck(CacheAction):
+    def update_cache(self):
+        redis_db.hset(self._user_id + ':decks', mapping={self._value: self._object_id})
 
 
 class SetCurrentDeck(CacheAction):
@@ -22,6 +32,11 @@ class SetCurrentDeck(CacheAction):
 class DelCurrentDeck(CacheAction):
     def update_cache(self):
         redis_db.hdel(self._user_id, 'current_deck')
+
+
+class ClearWordsToRepeat(CacheAction):
+    def update_cache(self):
+        redis_db.delete(f'{self._user_id}:{self._value}:cards')  # Clear list of words to repeat
 
 
 class SetCardFace(CacheAction):

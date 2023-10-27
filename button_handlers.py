@@ -62,7 +62,7 @@ async def learn_cards_handler(callback: CallbackQuery, bot: AsyncTeleBot):
 async def learn_all_words_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = callback.message.chat.id
     deck_name = redis_db.hget(user_id, 'current_deck')
-    action = GetCards(user_id, deck_name, bot)
+    action = GetCards(user_id, deck_name)
     action.perform()
 
     await show_card(callback, bot)
@@ -72,7 +72,7 @@ async def learn_all_words_handler(callback: CallbackQuery, bot: AsyncTeleBot):
 async def learn_new_words_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = callback.message.chat.id
     deck_name = redis_db.hget(user_id, 'current_deck')
-    action = GetNewCards(user_id, deck_name, bot)
+    action = GetNewCards(user_id, deck_name)
     action.perform()
 
     await show_card(callback, bot)
@@ -83,9 +83,10 @@ async def delete_card_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = callback.message.chat.id
     deck_name = redis_db.hget(user_id, 'current_deck')
     card_id = redis_db.hget(user_id, 'id')
-    action = DeleteCard(user_id, deck_name, bot, card_id=card_id)
+    action = DeleteCard(user_id, deck_name, card_id=card_id)
     action.perform()
     await bot.answer_callback_query(callback.id, text='Карточка удалена')
+    await show_card(callback, bot)
 
 
 def save_current_card(user_id, deck_name):
@@ -144,10 +145,10 @@ async def repeat_card(callback: CallbackQuery, bot: AsyncTeleBot, period):
     card_id = redis_db.hget(user_id, 'id')
     deck_name = redis_db.hget(user_id, 'current_deck')
 
-    action = IncreaseCardRepetitions(user_id, deck_name, bot, card_id)
+    action = IncreaseCardRepetitions(user_id, deck_name, card_id)
     action.perform()
 
-    action = SetCardNextRepetition(user_id, deck_name, bot, card_id, period)
+    action = SetCardNextRepetition(user_id, deck_name, card_id, period)
     action.perform()
 
     try:
