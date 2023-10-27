@@ -172,9 +172,9 @@ class RenameDeck(DeckAction):
         redis_db.hdel(self._user_id + ':decks', self._deck_name)
         redis_db.hset(self._user_id + ':decks', self._new_name, self._deck_id)
 
+
 # ======================================================================================================================
 # Card Actions
-
 
 class CardAction(BaseAction):
     """
@@ -207,6 +207,7 @@ class AddCard(CardAction):
     def _commit_action(self, data: Deck):
         self._card = Card(face=self._card_face, back=self._card_back)
         deck = data
+        deck.empty = False
         deck.cards.append(self._card)
 
 
@@ -223,6 +224,8 @@ class DeleteCard(CardAction):
         try:
             deck = data
             deck.cards.remove(card)
+            if len(deck.cards) == 0:
+                deck.empty = True
         except ValueError:
             pass  # Карточка уже удалена
 
@@ -306,7 +309,7 @@ class SetCardNextRepetition(CardAction):
                       str(self._card.next_repetition))
 
 
-def get_deck_name_by_id(deck_id: str):
+def get_deck_by_id(deck_id: str):
     with Session(engine) as session:
         request = select(Deck).where(Deck.id == deck_id)
         try:
@@ -315,4 +318,4 @@ def get_deck_name_by_id(deck_id: str):
             raise PostgresError('Problems with Postgres')
         else:
             session.rollback()
-            return deck.name
+            return deck.name, deck.empty

@@ -2,7 +2,7 @@ from telebot.async_telebot import AsyncTeleBot
 from telebot.types import CallbackQuery
 from user_states import UserStates
 from deck_actions import *
-from menu.keyboard_layouts import deck_menu_markup, learn_mode_markup, card_markup, empty_deck_markup, deck_mode_markup
+from menu.keyboard_layouts import deck_menu_markup, learn_mode_markup, card_markup, end_of_deck_markup, deck_mode_markup, empty_deck_markup
 from redis_db.cache_actions import SetCurrentDeck, SetCardFace, SetCardBack, SetCardId
 from redis_db.redis_init import redis_db
 from menu.menu import show_menu
@@ -13,6 +13,7 @@ from bot_message import BotMessages
 
 # ======================================================================================================================
 # Deck Handlers
+
 
 async def create_deck_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = callback.from_user.id
@@ -37,9 +38,14 @@ async def rename_deck_handler(callback: CallbackQuery, bot: AsyncTeleBot):
 
 async def deck_menu_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = callback.from_user.id
-    deck_name = get_deck_name_by_id(callback.data)
+    deck_name, deck_empty = get_deck_by_id(callback.data)
+    if deck_empty:
+        reply_markup = empty_deck_markup
+        print('EMPTY')
+    else:
+        reply_markup = deck_menu_markup
     SetCurrentDeck(user_id, deck_name).update_cache()
-    await bot.send_message(callback.message.chat.id, 'Выбрана колода: %s' % deck_name, reply_markup=deck_menu_markup)
+    await bot.send_message(callback.message.chat.id, 'Выбрана колода: %s' % deck_name, reply_markup=reply_markup)
     await bot.delete_message(callback.message.chat.id, callback.message.id)
     await bot.answer_callback_query(callback.id)
 
@@ -121,7 +127,7 @@ async def show_card(callback: CallbackQuery, bot: AsyncTeleBot):
     try:
         save_current_card(user_id, deck_name)
     except EmptyDeckError:
-        await bot.send_message(user_id, 'Мы повторили все карточки', reply_markup=empty_deck_markup)
+        await bot.send_message(user_id, 'Мы повторили все карточки', reply_markup=end_of_deck_markup)
     else:
         card_face = redis_db.hget(user_id, 'card_face')
         card_back = redis_db.hget(user_id, 'card_back')

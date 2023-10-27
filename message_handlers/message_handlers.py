@@ -2,8 +2,8 @@ import menu.menu
 from user_states import UserStates
 from telebot.types import Message
 from telebot.async_telebot import AsyncTeleBot
-from menu.keyboard_layouts import card_add_markup, empty_deck_markup
-from deck_actions import DeleteDeck, CreateDeck, AddCard, RenameDeck
+from menu.keyboard_layouts import card_add_markup, end_of_deck_markup
+from deck_actions import DeleteDeck, CreateDeck, AddCard, RenameDeck, get_deck_by_id
 from menu.menu import show_menu
 from redis_db.redis_init import redis_db
 from redis_db.cache_actions import DelCurrentDeck, SetCardFace, SetCardBack
@@ -13,7 +13,7 @@ async def create_deck(message: Message, bot: AsyncTeleBot):
     action = CreateDeck(message.from_user.id, message.text)
     action.perform()
     await bot.set_state(message.from_user.id, UserStates.menu)
-    await bot.send_message(message.chat.id, f'Колода {message.text} создана', reply_markup=empty_deck_markup)
+    await bot.send_message(message.chat.id, f'Колода {message.text} создана', reply_markup=end_of_deck_markup)
     await menu.menu.show_menu(bot, message)
 
 

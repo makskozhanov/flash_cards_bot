@@ -64,10 +64,16 @@ card_markup = quick_markup(
     }
 )
 
-empty_deck_markup = quick_markup(
+end_of_deck_markup = quick_markup(
     {
         'Вернуться в меню': {'callback_data': 'show_menu'}
     }
 )
 
-
+empty_deck_markup = quick_markup(
+    {
+        'Добавить карточку': {'callback_data': 'add_card'},
+        'Удалить колоду': {'callback_data': 'delete_deck'},
+        'Вернуться в меню': {'callback_data': 'show_menu'}
+    }
+)

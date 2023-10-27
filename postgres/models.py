@@ -12,7 +12,7 @@ class User(BaseModel):
     __tablename__ = 'users'
     id: Mapped[str] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
-    is_premium: Mapped[bool] = mapped_column(Boolean)
+    is_premium: Mapped[bool] = mapped_column(Boolean, default=False)
     decks: Mapped[List['Deck']] = relationship(back_populates='user', cascade='all, delete-orphan')
 
 
@@ -21,6 +21,7 @@ class Deck(BaseModel):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[str] = mapped_column(ForeignKey('users.id'))
     name: Mapped[str] = mapped_column(String(300))
+    empty: Mapped[bool] = mapped_column(Boolean, default=True)
     user: Mapped['User'] = relationship(back_populates='decks')
     cards: Mapped[List['Card']] = relationship(back_populates='deck', cascade='all, delete-orphan')
 
