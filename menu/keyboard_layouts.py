@@ -21,9 +21,9 @@ no_decks_markup = quick_markup(
 deck_menu_markup = quick_markup(
     {
         'Повторять карточки': {'callback_data': 'learn'},
-        'Изменить тип колоды': {'callback_data': 'change_deck_type'},
         'Добавить карточку': {'callback_data': 'add_card'},
-        'Удалить колоду': {'callback_data': 'delete_deck'},
+        'Удалить': {'callback_data': 'delete_deck'},
+        'Переименовать': {'callback_data': 'rename_deck'},
         'Вернуться в меню': {'callback_data': 'show_menu'}
     },
     row_width=1
@@ -38,9 +38,18 @@ card_add_markup = quick_markup(
 
 learn_mode_markup = quick_markup(
     {
-        'Все карточки': {'callback_data': 'learn_all'},
-        'Новые карточки': {'callback_data': 'learn_new'},
-        'По расписанию': {'callback_data': 'learn_schedule'}
+        'Все карточки': {'callback_data': 'learn_mode:all'},
+        'Новые карточки': {'callback_data': 'learn_mode:new'},
+        'По расписанию': {'callback_data': 'learn_mode:schedule'}
+    }
+)
+
+
+deck_mode_markup = quick_markup(
+    {
+        'Сначала лицо': {'callback_data': 'deck_mode:face'},
+        'Сначала оборот': {'callback_data': 'deck_mode:back'},
+        'Случайно': {'callback_data': 'deck_mode:random'}
     }
 )
 

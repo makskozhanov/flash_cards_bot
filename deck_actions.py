@@ -70,6 +70,9 @@ class BaseAction:
         raise NotImplementedError
 
 
+# ======================================================================================================================
+# Deck Actions
+
 class DeckAction(BaseAction):
     """
     Base class for actions with decks
@@ -79,10 +82,11 @@ class DeckAction(BaseAction):
         3) Committing to database
         4) Updating cache
     """
-    def __init__(self, user_id: any = None, deck_name: any = None) -> None:
+    def __init__(self, user_id: any = None, deck_name: any = None, **kwargs) -> None:
         self._user_id = str(user_id)
         self._deck_name = str(deck_name)
         self._deck_id = redis_db.hget(self._user_id + ':decks', self._deck_name)
+        self._kwargs = kwargs
 
 
 class DeleteDeck(DeckAction):
@@ -124,7 +128,7 @@ class CreateDeck(DeckAction):
         :return: None
         """
         user = data
-        self._deck = Deck(name=self._deck_name, deck_type='straight')
+        self._deck = Deck(name=self._deck_name)
         user.decks.append(self._deck)
 
     def _update_cache(self) -> None:
@@ -133,6 +137,43 @@ class CreateDeck(DeckAction):
         :return: None
         """
         cache.AddDeck(self._user_id, self._deck_name, self._deck.id).update_cache()
+
+
+class GetDecks(DeckAction):
+    def __init__(self, user_id):
+        super().__init__(user_id)
+        self._request = select(Deck).where(Deck.user_id == self._user_id)
+
+    def _get_data(self):
+        return self._session.scalars(self._request).all()
+
+    def _commit_action(self, data: ScalarResult):
+        self._decks = data
+
+    def _update_cache(self) -> None:
+        for deck in self._decks:
+            cache.AddDeck(self._user_id, deck.name, deck.id)
+
+
+class RenameDeck(DeckAction):
+    def __init__(self, user_id, deck_name, new_name):
+        super().__init__(user_id, deck_name, new_name=new_name)
+        self._request = select(Deck).where(Deck.id == self._deck_id)
+
+    def _get_data(self):
+        return self._session.scalar(self._request)
+
+    def _commit_action(self, data: Deck):
+        deck = data
+        self._new_name = self._kwargs.get('new_name')
+        deck.name = self._new_name
+
+    def _update_cache(self) -> None:
+        redis_db.hdel(self._user_id + ':decks', self._deck_name)
+        redis_db.hset(self._user_id + ':decks', self._new_name, self._deck_id)
+
+# ======================================================================================================================
+# Card Actions
 
 
 class CardAction(BaseAction):
@@ -170,8 +211,8 @@ class AddCard(CardAction):
 
 
 class DeleteCard(CardAction):
-    def __init__(self, user_id, deck_name):
-        super().__init__(user_id, deck_name)
+    def __init__(self, user_id, deck_name, card_id):
+        super().__init__(user_id, deck_name, card_id)
         self._request = select(Deck).where(Deck.id == self._deck_id)
 
     def _get_data(self):
@@ -263,22 +304,6 @@ class SetCardNextRepetition(CardAction):
     def _update_cache(self):
         redis_db.hset(f'{self._user_id}:{self._deck_name}:{self._card.id}', 'next_repetition',
                       str(self._card.next_repetition))
-
-
-class GetDecks(DeckAction):
-    def __init__(self, user_id):
-        super().__init__(user_id)
-        self._request = select(Deck).where(Deck.user_id == self._user_id)
-
-    def _get_data(self):
-        return self._session.scalars(self._request).all()
-
-    def _commit_action(self, data: ScalarResult):
-        self._decks = data
-
-    def _update_cache(self) -> None:
-        for deck in self._decks:
-            cache.AddDeck(self._user_id, deck.name, deck.id)
 
 
 def get_deck_name_by_id(deck_id: str):

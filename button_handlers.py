@@ -2,12 +2,13 @@ from telebot.async_telebot import AsyncTeleBot
 from telebot.types import CallbackQuery
 from user_states import UserStates
 from deck_actions import *
-from menu.keyboard_layouts import deck_menu_markup, learn_mode_markup, card_markup, empty_deck_markup
+from menu.keyboard_layouts import deck_menu_markup, learn_mode_markup, card_markup, empty_deck_markup, deck_mode_markup
 from redis_db.cache_actions import SetCurrentDeck, SetCardFace, SetCardBack, SetCardId
 from redis_db.redis_init import redis_db
 from menu.menu import show_menu
 from exceptions import EmptyDeckError
 from telebot.asyncio_helper import ApiTelegramException
+from random import randint
 
 
 # ======================================================================================================================
@@ -25,6 +26,12 @@ async def delete_deck_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     await bot.answer_callback_query(callback.id, text='Введи слово удалить:', show_alert=True)
 
 
+async def rename_deck_handler(callback: CallbackQuery, bot: AsyncTeleBot):
+    user_id = callback.from_user.id
+    await bot.set_state(user_id, UserStates.rename_deck)
+    await bot.answer_callback_query(callback.id, text='Введи новое имя колоды:', show_alert=True)
+
+
 # ======================================================================================================================
 # Menu Handlers
 
@@ -37,7 +44,7 @@ async def deck_menu_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     await bot.answer_callback_query(callback.id)
 
 
-async def show_menu_handler(callback: CallbackQuery, bot: AsyncTeleBot):
+async def main_menu_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     await bot.delete_message(callback.message.chat.id, callback.message.id)
     await bot.answer_callback_query(callback.id)
     await show_menu(bot, callback.message)
@@ -59,24 +66,28 @@ async def learn_cards_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     await bot.send_message(callback.message.chat.id, 'Выбери режим повторения', reply_markup=learn_mode_markup)
 
 
-async def learn_all_words_handler(callback: CallbackQuery, bot: AsyncTeleBot):
+async def learn_mode_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = callback.message.chat.id
     deck_name = redis_db.hget(user_id, 'current_deck')
-    action = GetCards(user_id, deck_name)
+    learn_mode = callback.data.split(':')[1]
+    if learn_mode == 'all':
+        action = GetCards(user_id, deck_name)
+    elif learn_mode == 'new':
+        action = GetNewCards(user_id, deck_name)
+    else:
+        action = GetCards(user_id, deck_name)
+
     action.perform()
-
-    await show_card(callback, bot)
     await bot.answer_callback_query(callback.id)
+    await bot.send_message(callback.message.chat.id, 'Выбери режим колоды', reply_markup=deck_mode_markup)
 
 
-async def learn_new_words_handler(callback: CallbackQuery, bot: AsyncTeleBot):
+async def deck_mode_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = callback.message.chat.id
-    deck_name = redis_db.hget(user_id, 'current_deck')
-    action = GetNewCards(user_id, deck_name)
-    action.perform()
-
-    await show_card(callback, bot)
+    deck_mode = callback.data.split(':')[1]
+    redis_db.hset(user_id, 'deck_mode', deck_mode)
     await bot.answer_callback_query(callback.id)
+    await show_card(callback, bot)
 
 
 async def delete_card_handler(callback: CallbackQuery, bot: AsyncTeleBot):
@@ -105,6 +116,7 @@ def save_current_card(user_id, deck_name):
 async def show_card(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = callback.message.chat.id
     deck_name = redis_db.hget(user_id, 'current_deck')
+    deck_mode = redis_db.hget(user_id, 'deck_mode')
 
     try:
         save_current_card(user_id, deck_name)
@@ -113,6 +125,8 @@ async def show_card(callback: CallbackQuery, bot: AsyncTeleBot):
     else:
         card_face = redis_db.hget(user_id, 'card_face')
         card_back = redis_db.hget(user_id, 'card_back')
+        if deck_mode == 'back' or (deck_mode == 'random' and randint(0, 1) == 1):
+            card_face, card_back = card_back, card_face
         await bot.send_message(user_id, f'{card_face}\n\n<tg-spoiler>{card_back}</tg-spoiler>', reply_markup=card_markup, parse_mode='html')
     finally:
         await bot.answer_callback_query(callback.id)
@@ -155,5 +169,4 @@ async def repeat_card(callback: CallbackQuery, bot: AsyncTeleBot, period):
         await bot.edit_message_reply_markup(user_id, callback.message.id, reply_markup=None)
     except ApiTelegramException:
         pass
-
 

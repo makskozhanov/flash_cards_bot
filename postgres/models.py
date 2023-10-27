@@ -21,7 +21,6 @@ class Deck(BaseModel):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[str] = mapped_column(ForeignKey('users.id'))
     name: Mapped[str] = mapped_column(String(300))
-    deck_type: Mapped[str] = mapped_column(String(50))
     user: Mapped['User'] = relationship(back_populates='decks')
     cards: Mapped[List['Card']] = relationship(back_populates='deck', cascade='all, delete-orphan')
 
