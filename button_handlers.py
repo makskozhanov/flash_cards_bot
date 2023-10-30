@@ -86,6 +86,7 @@ async def learn_mode_handler(callback: CallbackQuery, bot: AsyncTeleBot):
 
     action.perform()
     await bot.answer_callback_query(callback.id)
+    await bot.delete_message(callback.message.chat.id, callback.message.id)
     await bot.send_message(callback.message.chat.id, 'Выбери режим колоды', reply_markup=deck_mode_markup)
 
 
@@ -118,7 +119,6 @@ async def edit_card_content_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     redis_db.hset(user_id, 'edit', card_part)
     redis_db.hset(user_id, 'message_id', callback.message.message_id)
     await bot.set_state(user_id, UserStates.edit_card)
-
     await bot.answer_callback_query(callback.id, 'Введи текст', show_alert=True)
 
 
@@ -150,7 +150,7 @@ async def show_card(callback: CallbackQuery, bot: AsyncTeleBot):
     finally:
         await bot.answer_callback_query(callback.id)
         try:
-            await bot.edit_message_reply_markup(user_id, callback.message.id, reply_markup=None)
+            await bot.delete_message(callback.message.chat.id, callback.message.id)
         except ApiTelegramException:
             pass
 
@@ -161,6 +161,7 @@ def create_card_text(user_id, deck_mode):
     if deck_mode == 'back' or (deck_mode == 'random' and randint(0, 1) == 1):
         card_face, card_back = card_back, card_face
     return f'{card_face}\n\n<tg-spoiler>{card_back}</tg-spoiler>'
+
 
 async def repeat_card_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = str(callback.message.chat.id)

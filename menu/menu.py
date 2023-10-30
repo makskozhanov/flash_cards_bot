@@ -3,6 +3,7 @@ from telebot.util import quick_markup
 from telebot.types import InlineKeyboardMarkup
 from redis_db.redis_init import redis_db
 from menu.keyboard_layouts import no_decks_markup
+from telebot.asyncio_helper import ApiTelegramException
 
 
 async def show_menu(bot, message) -> None:
@@ -26,6 +27,7 @@ async def show_menu(bot, message) -> None:
         menu_markup = create_menu_markup(user_decks)
     else:
         menu_markup = no_decks_markup
+
     await bot.send_message(message.chat.id, 'ㅤ\n<b>Главное меню</b>\nㅤ', reply_markup=menu_markup, parse_mode='html')
 
 
