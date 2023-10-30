@@ -234,20 +234,47 @@ class DeleteCard(CardAction):
             redis_db.delete(f'{self._user_id}:{self._deck_name}:{self._card_id}')
 
 
-class GetCards(DeckAction):
-    def __init__(self, user_id, deck_name):
-        super().__init__(user_id, deck_name)
-        self._request = select(Deck).where(Deck.id == self._deck_id)
+class EditCard(CardAction):
+    def __init__(self, user_id, deck_name, card_id):
+        super().__init__(user_id, deck_name, card_id)
+        self._request = select(Card).where(Card.id == self._card_id).where(Card.deck_id == self._deck_id)
 
     def _get_data(self):
         return self._session.scalar(self._request)
 
-    def _commit_action(self, data: Deck):
-        self._deck = data
+
+class EditCardFace(EditCard):
+    def _commit_action(self, data: Card):
+        self._card = data
+        self._card.face = self._card_face
+
+    def _update_cache(self) -> None:
+        redis_db.hset(f'{self._user_id}:{self._deck_name}:{self._card_id}', 'face', self._card_face)
+
+
+class EditCardBack(EditCard):
+    def _commit_action(self, data: Card):
+        self._card = data
+        self._card.back = self._card_back
+
+    def _update_cache(self) -> None:
+        redis_db.hset(f'{self._user_id}:{self._deck_name}:{self._card_id}', 'back', self._card_back)
+
+
+class GetCards(DeckAction):
+    def __init__(self, user_id, deck_name):
+        super().__init__(user_id, deck_name)
+        self._request = select(Card).where(Card.deck_id == self._deck_id)
+
+    def _get_data(self):
+        return self._session.scalars(self._request).all()
+
+    def _commit_action(self, data: ScalarResult):
+        self._cards = data
 
     def _update_cache(self):
         cache.ClearWordsToRepeat(self._user_id, self._deck_name).update_cache()
-        for card in self._deck.cards:
+        for card in self._cards:
             self._push_card_to_cache(card)
             self._add_card_to_repetition_list(card)
 
@@ -265,11 +292,12 @@ class GetNewCards(GetCards):
         super().__init__(user_id, deck_name)
         self._request = select(Card).where(Card.repetitions < 5).where(Card.deck_id == self._deck_id)
 
-    def _get_data(self):
-        return self._session.scalars(self._request).all()
 
-    def _commit_action(self, data: ScalarResult):
-        self._cards = data
+class GetTodayCards(GetCards):
+    def __init__(self, user_id, deck_name):
+        super().__init__(user_id, deck_name)
+        print(date.today())
+        self._request = select(Card).where(Card.next_repetition == date.today())
 
 
 class IncreaseCardRepetitions(CardAction):
@@ -307,6 +335,8 @@ class SetCardNextRepetition(CardAction):
     def _update_cache(self):
         redis_db.hset(f'{self._user_id}:{self._deck_name}:{self._card.id}', 'next_repetition',
                       str(self._card.next_repetition))
+
+
 
 
 def get_deck_by_id(deck_id: str):

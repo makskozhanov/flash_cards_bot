@@ -53,6 +53,14 @@ deck_mode_markup = quick_markup(
     }
 )
 
+edit_card_markup = quick_markup(
+    {
+        'Изменить лицо': {'callback_data': 'edit_card:face'},
+        'Изменить оборот': {'callback_data': 'edit_card:back'}
+    },
+    row_width=1
+)
+
 card_markup = quick_markup(
     {
         'Завтра': {'callback_data': 'repeat_card:tomorrow'},
@@ -60,6 +68,7 @@ card_markup = quick_markup(
         'Через месяц': {'callback_data': 'repeat_card:month'},
         'Повторить еще': {'callback_data': 'repeat_card:now'},
         'Удалить карточку': {'callback_data': 'delete_card'},
+        'Изменить карточку': {'callback_data': 'edit_card'},
         'Вернуться в меню': {'callback_data': 'show_menu'}
     }
 )
