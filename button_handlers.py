@@ -64,7 +64,8 @@ async def add_card_face_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = callback.from_user.id
     await bot.set_state(user_id, UserStates.add_card_face)
     await bot.delete_message(callback.message.chat.id, callback.message.id)
-    await bot.answer_callback_query(callback.id, text='Введи текст лицевой стороны карточки:', show_alert=True)
+    await bot.send_message(callback.message.chat.id, 'Введи текст лицевой стороны карточки:')
+    await bot.answer_callback_query(callback.id)
 
 
 async def learn_cards_handler(callback: CallbackQuery, bot: AsyncTeleBot):

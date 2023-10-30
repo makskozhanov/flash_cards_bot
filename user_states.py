@@ -9,6 +9,5 @@ class UserStates(StatesGroup):
     rename_deck = State()
     add_card_face = State()
     add_card_back = State()
-    add_card_more = State()
     edit_card = State()
 

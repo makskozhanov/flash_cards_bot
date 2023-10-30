@@ -56,6 +56,8 @@ async def add_card_back(message: Message, bot: AsyncTeleBot):
     action.perform()
 
     await bot.set_state(user_id, UserStates.add_card_more)
+    for count in range(4):
+        await bot.delete_message(message.chat.id, message.message_id - count)
     await bot.send_message(message.chat.id, 'Карточка добавлена', reply_markup=card_add_markup)
 
 
