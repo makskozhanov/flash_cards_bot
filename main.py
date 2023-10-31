@@ -9,7 +9,6 @@ from user_states import UserStates
 bot.register_message_handler(start, commands='start', pass_bot=True)
 
 bot.register_message_handler(create_deck, state=UserStates.create_deck, pass_bot=True)
-bot.register_message_handler(delete_deck, state=UserStates.delete_deck, pass_bot=True)
 bot.register_message_handler(rename_deck, state=UserStates.rename_deck, pass_bot=True)
 
 bot.register_message_handler(edit_card, state=UserStates.edit_card, pass_bot=True)
@@ -18,6 +17,7 @@ bot.register_message_handler(edit_card, state=UserStates.edit_card, pass_bot=Tru
 bot.register_message_handler(add_card_face, state=UserStates.add_card_face, pass_bot=True)
 bot.register_message_handler(add_card_back, state=UserStates.add_card_back, pass_bot=True)
 
+bot.register_message_handler(delete_user_input, pass_bot=True)
 
 bot.register_callback_query_handler(main_menu_handler, func=lambda c: c.data == 'show_menu', pass_bot=True)
 
@@ -34,6 +34,7 @@ bot.register_callback_query_handler(repeat_card_handler, func=lambda c: c.data.s
 
 
 bot.register_callback_query_handler(create_deck_handler, func=lambda c: c.data == 'create_deck', pass_bot=True)
+bot.register_callback_query_handler(delete_deck_confirmation_handler, func=lambda c: c.data == 'delete_deck_confirmation', pass_bot=True)
 bot.register_callback_query_handler(delete_deck_handler, func=lambda c: c.data == 'delete_deck', pass_bot=True)
 bot.register_callback_query_handler(rename_deck_handler, func=lambda c: c.data == 'rename_deck', pass_bot=True)
 

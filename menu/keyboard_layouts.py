@@ -22,7 +22,7 @@ deck_menu_markup = quick_markup(
     {
         'Повторять карточки': {'callback_data': 'learn'},
         'Добавить карточку': {'callback_data': 'add_card'},
-        'Удалить': {'callback_data': 'delete_deck'},
+        'Удалить': {'callback_data': 'delete_deck_confirmation'},
         'Переименовать': {'callback_data': 'rename_deck'},
         'Вернуться в меню': {'callback_data': 'show_menu'}
     },
@@ -82,6 +82,13 @@ end_of_deck_markup = quick_markup(
 empty_deck_markup = quick_markup(
     {
         'Добавить карточку': {'callback_data': 'add_card'},
+        'Удалить колоду': {'callback_data': 'delete_deck_confirmation'},
+        'Вернуться в меню': {'callback_data': 'show_menu'}
+    }
+)
+
+delete_deck_markup = quick_markup(
+    {
         'Удалить колоду': {'callback_data': 'delete_deck'},
         'Вернуться в меню': {'callback_data': 'show_menu'}
     }

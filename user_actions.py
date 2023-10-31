@@ -9,7 +9,6 @@ from exceptions import RedisError
 def get_user_from_cache(user_id: int):
     user_id = str(user_id)
     try:
-        print(user_id)
         user = redis_db.get('telebot_' + user_id)
     except Exception:
         raise RedisError('Problems with Redis')

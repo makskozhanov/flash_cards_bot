@@ -54,3 +54,6 @@ class SetCardId(CacheAction):
         redis_db.hset(self._user_id, mapping={'id': self._object_id})
 
 
+class SetBotMessageId(CacheAction):
+    def update_cache(self):
+        redis_db.hset(self._user_id, mapping={'bot_message_id': self._value})

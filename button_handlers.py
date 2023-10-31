@@ -1,5 +1,6 @@
 from telebot.async_telebot import AsyncTeleBot
 from telebot.types import CallbackQuery
+
 from user_states import UserStates
 from deck_actions import *
 from menu.keyboard_layouts import *
@@ -7,9 +8,22 @@ from redis_db.cache_actions import SetCurrentDeck, SetCardFace, SetCardBack, Set
 from redis_db.redis_init import redis_db
 from menu.menu import show_menu
 from exceptions import EmptyDeckError
-from telebot.asyncio_helper import ApiTelegramException
 from random import randint
 from bot_message import BotMessages
+from utils import hide_previous_message_keyboard
+
+
+class CallbackHandler:
+    def __init__(self, callback, bot, state):
+        self._user_id = callback.from_user.id
+        self._callback_id = callback.id
+        self._bot = bot
+        self._deck_name = redis_db.hget(self._user_id, 'current_deck')
+        self._state = state
+
+    async def perform(self):
+        await self._bot.set_state(self._user_id, self._state)
+        await self._bot.answer_callback_query(self._callback_id, text='Введи название колоды:', show_alert=True)
 
 # ======================================================================================================================
 # Deck Handlers
@@ -21,10 +35,26 @@ async def create_deck_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     await bot.answer_callback_query(callback.id, text='Введи название колоды:', show_alert=True)
 
 
-async def delete_deck_handler(callback: CallbackQuery, bot: AsyncTeleBot):
+async def delete_deck_confirmation_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = callback.from_user.id
     await bot.set_state(user_id, UserStates.delete_deck)
-    await bot.answer_callback_query(callback.id, text='Введи слово удалить:', show_alert=True)
+    await bot.answer_callback_query(callback.id)
+
+    await hide_previous_message_keyboard(user_id, callback.message.chat.id, bot)
+    current_message = await bot.send_message(callback.message.chat.id, 'Подтверди удаление', reply_markup=delete_deck_markup)
+    cache.SetBotMessageId(user_id, current_message.id).update_cache()
+
+
+async def delete_deck_handler(callback: CallbackQuery, bot: AsyncTeleBot):
+    user_id = callback.from_user.id
+    deck_name = redis_db.hget(user_id, 'current_deck')
+    action = DeleteDeck(user_id, deck_name)
+    action.perform()
+    cache.DelCurrentDeck(user_id).update_cache()
+
+    await bot.set_state(user_id, UserStates.menu)
+    await bot.answer_callback_query(callback.id)
+    await show_menu(bot, callback.message)
 
 
 async def rename_deck_handler(callback: CallbackQuery, bot: AsyncTeleBot):
@@ -46,13 +76,15 @@ async def deck_menu_handler(callback: CallbackQuery, bot: AsyncTeleBot):
         reply_markup = deck_menu_markup
         reply = 'Выбрана колода: %s' % deck_name
     SetCurrentDeck(user_id, deck_name).update_cache()
-    await bot.send_message(callback.message.chat.id, reply, reply_markup=reply_markup)
-    await bot.delete_message(callback.message.chat.id, callback.message.id)
+
+    await hide_previous_message_keyboard(user_id, callback.message.chat.id, bot)
+    current_message = await bot.send_message(callback.message.chat.id, reply, reply_markup=reply_markup)
+    cache.SetBotMessageId(user_id, current_message.id).update_cache()
+
     await bot.answer_callback_query(callback.id)
 
 
 async def main_menu_handler(callback: CallbackQuery, bot: AsyncTeleBot):
-    await bot.delete_message(callback.message.chat.id, callback.message.id)
     await bot.answer_callback_query(callback.id)
     await show_menu(bot, callback.message)
 
@@ -63,15 +95,21 @@ async def main_menu_handler(callback: CallbackQuery, bot: AsyncTeleBot):
 async def add_card_face_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     user_id = callback.from_user.id
     await bot.set_state(user_id, UserStates.add_card_face)
-    await bot.delete_message(callback.message.chat.id, callback.message.id)
-    await bot.send_message(callback.message.chat.id, 'Введи текст лицевой стороны карточки:')
+
+    await hide_previous_message_keyboard(user_id, callback.message.chat.id, bot)
+    current_message = await bot.send_message(callback.message.chat.id, 'Введи текст лицевой стороны карточки:')
+    cache.SetBotMessageId(user_id, current_message.id).update_cache()
+
     await bot.answer_callback_query(callback.id)
 
 
 async def learn_cards_handler(callback: CallbackQuery, bot: AsyncTeleBot):
-    await bot.delete_message(callback.message.chat.id, callback.message.id)
     await bot.answer_callback_query(callback.id)
-    await bot.send_message(callback.message.chat.id, 'Выбери режим повторения', reply_markup=learn_mode_markup)
+    user_id = callback.from_user.id
+
+    await hide_previous_message_keyboard(user_id, callback.message.chat.id, bot)
+    current_message = await bot.send_message(callback.message.chat.id, 'Выбери режим повторения', reply_markup=learn_mode_markup)
+    cache.SetBotMessageId(user_id, current_message.id).update_cache()
 
 
 async def learn_mode_handler(callback: CallbackQuery, bot: AsyncTeleBot):
@@ -87,8 +125,10 @@ async def learn_mode_handler(callback: CallbackQuery, bot: AsyncTeleBot):
 
     action.perform()
     await bot.answer_callback_query(callback.id)
-    await bot.delete_message(callback.message.chat.id, callback.message.id)
-    await bot.send_message(callback.message.chat.id, 'Выбери режим колоды', reply_markup=deck_mode_markup)
+
+    await hide_previous_message_keyboard(user_id, callback.message.chat.id, bot)
+    current_message = await bot.send_message(callback.message.chat.id, 'Выбери режим колоды', reply_markup=deck_mode_markup)
+    cache.SetBotMessageId(user_id, current_message.id).update_cache()
 
 
 async def deck_mode_handler(callback: CallbackQuery, bot: AsyncTeleBot):
@@ -144,16 +184,17 @@ async def show_card(callback: CallbackQuery, bot: AsyncTeleBot):
     try:
         save_current_card(user_id, deck_name)
     except EmptyDeckError:
-        await bot.send_message(user_id, 'Мы повторили все карточки', reply_markup=end_of_deck_markup)
+        await hide_previous_message_keyboard(user_id, callback.message.chat.id, bot)
+        current_message = await bot.send_message(user_id, 'Мы повторили все карточки', reply_markup=end_of_deck_markup)
+        cache.SetBotMessageId(user_id, current_message.id).update_cache()
     else:
         reply = create_card_text(user_id, deck_mode)
-        await bot.send_message(user_id, reply, reply_markup=card_markup, parse_mode='html')
+
+        await hide_previous_message_keyboard(user_id, callback.message.chat.id, bot)
+        current_message = await bot.send_message(user_id, reply, reply_markup=card_markup, parse_mode='html')
+        cache.SetBotMessageId(user_id, current_message.id).update_cache()
     finally:
         await bot.answer_callback_query(callback.id)
-        try:
-            await bot.delete_message(callback.message.chat.id, callback.message.id)
-        except ApiTelegramException:
-            pass
 
 
 def create_card_text(user_id, deck_mode):
@@ -187,11 +228,8 @@ async def repeat_card_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     action = SetCardNextRepetition(user_id, deck_name, card_id, period)
     action.perform()
 
-    try:
-        await bot.edit_message_reply_markup(user_id, callback.message.id, reply_markup=None)
-    except ApiTelegramException:
-        pass
-
     await bot.answer_callback_query(callback.id, reply)
     await show_card(callback, bot)
+
+
 

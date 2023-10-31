@@ -152,7 +152,7 @@ class GetDecks(DeckAction):
 
     def _update_cache(self) -> None:
         for deck in self._decks:
-            cache.AddDeck(self._user_id, deck.name, deck.id)
+            cache.AddDeck(self._user_id, deck.name, deck.id).update_cache()
 
 
 class RenameDeck(DeckAction):
