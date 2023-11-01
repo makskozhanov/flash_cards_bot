@@ -1,6 +1,10 @@
+"""
+This file defines auxiliary functions.
+"""
+
 from telebot.async_telebot import AsyncTeleBot
 from telebot.asyncio_helper import ApiTelegramException
-from redis_db.redis_init import redis_db
+from redis_db.init import redis_db
 
 
 async def hide_previous_message_keyboard(user_id, chat_id, bot: AsyncTeleBot):

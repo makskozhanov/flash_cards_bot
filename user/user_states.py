@@ -1,3 +1,8 @@
+"""
+This file defines user states which are required for assigning handlers.
+"""
+
+
 from telebot.asyncio_handler_backends import State, StatesGroup
 
 

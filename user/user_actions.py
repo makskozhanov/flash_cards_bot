@@ -1,8 +1,12 @@
+"""
+This file defines actions with user such as: create a new user, get user from cache or database.
+"""
+
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from postgres.init import ENGINE
 from postgres.models import User
-from redis_db.redis_init import redis_db
+from redis_db.init import redis_db
 from exceptions import RedisError
 
 

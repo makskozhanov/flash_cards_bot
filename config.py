@@ -1,3 +1,8 @@
+"""
+This file defines configuration params for Redis and Postgres.
+It sets environment variables from .env file.
+"""
+
 import os
 from dotenv import load_dotenv
 from enum import Enum

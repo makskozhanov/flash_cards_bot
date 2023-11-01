@@ -8,8 +8,8 @@ from telebot.types import Message
 from telebot.async_telebot import AsyncTeleBot
 from menu.keyboard_layouts import *
 from postgres.database_actions import *
-from menu.menu import show_menu
-from redis_db.redis_init import redis_db
+from menu.main_menu import show_main_menu
+from redis_db.init import redis_db
 from redis_db.cache_actions import SetCardFace, SetCardBack
 from handlers.button_handlers import create_card_text
 from utils.utils import hide_previous_message_keyboard
@@ -23,7 +23,7 @@ async def create_deck(message: Message, bot: AsyncTeleBot):
     action = CreateDeck(message.from_user.id, message.text)
     action.perform()
     await bot.set_state(message.from_user.id, UserStates.menu)
-    await show_menu(bot, message)
+    await show_main_menu(bot, message)
 
 
 async def rename_deck(message: Message, bot: AsyncTeleBot):
@@ -33,7 +33,7 @@ async def rename_deck(message: Message, bot: AsyncTeleBot):
     action = RenameDeck(user_id, deck_name, new_name=new_name)
     action.perform()
     await bot.set_state(user_id, UserStates.menu)
-    await show_menu(bot, message)
+    await show_main_menu(bot, message)
 
 
 async def add_card_face(message: Message, bot: AsyncTeleBot):

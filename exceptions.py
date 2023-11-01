@@ -1,3 +1,8 @@
+"""
+This file describes custom exceptions.
+"""
+
+
 class RedisError(Exception):
     pass
 

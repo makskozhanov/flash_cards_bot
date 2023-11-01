@@ -2,7 +2,7 @@
 This file defines actions with Redis cache.
 """
 
-from redis_db.redis_init import redis_db
+from redis_db.init import redis_db
 from exceptions import EmptyDeckError
 
 

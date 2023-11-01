@@ -1,9 +1,14 @@
+"""
+This file defines actions with decks and cards, related to database,
+such as create, delete, rename or edit.
+"""
+
 from sqlalchemy.orm import Session
 from sqlalchemy import select, ScalarResult
 from postgres.init import ENGINE
 from postgres.models import User, Deck, Card
 from exceptions import PostgresError
-from redis_db.redis_init import redis_db
+from redis_db.init import redis_db
 from datetime import date, timedelta
 from enum import Enum
 from typing import Protocol

@@ -6,7 +6,7 @@ from telebot.async_telebot import AsyncTeleBot
 from telebot.types import CallbackQuery
 from redis_db import cache_actions as cache
 from menu.keyboard_layouts import *
-from redis_db.redis_init import redis_db
+from redis_db.init import redis_db
 from exceptions import EmptyDeckError
 from utils.utils import hide_previous_message_keyboard
 from random import randint

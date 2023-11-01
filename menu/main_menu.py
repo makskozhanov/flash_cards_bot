@@ -6,14 +6,14 @@ Main menu is different for each user, because everyone has their own decks.
 from postgres.database_actions import GetDecks
 from telebot.util import quick_markup
 from telebot.types import InlineKeyboardMarkup
-from redis_db.redis_init import redis_db
+from redis_db.init import redis_db
 from menu.keyboard_layouts import no_decks_markup
 from user.user_states import UserStates
 from utils.utils import hide_previous_message_keyboard
 from redis_db import cache_actions as cache
 
 
-async def show_menu(bot, message) -> None:
+async def show_main_menu(bot, message) -> None:
     """
     Shows menu to user with their decks
     :param bot:

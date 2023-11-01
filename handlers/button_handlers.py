@@ -1,6 +1,10 @@
+"""
+Defines functions to be called on user click or tap button.
+"""
+
 from user.user_states import UserStates
 from redis_db.cache_actions import SetCurrentDeck
-from menu.menu import show_menu
+from menu.main_menu import show_main_menu
 from utils.card_actions import *
 from postgres.database_actions import *
 
@@ -32,7 +36,7 @@ async def delete_deck_handler(callback: CallbackQuery, bot: AsyncTeleBot):
 
     await bot.set_state(user_id, UserStates.menu)
     await bot.answer_callback_query(callback.id)
-    await show_menu(bot, callback.message)
+    await show_main_menu(bot, callback.message)
 
 
 async def rename_deck_handler(callback: CallbackQuery, bot: AsyncTeleBot):
@@ -64,7 +68,7 @@ async def deck_menu_handler(callback: CallbackQuery, bot: AsyncTeleBot):
 
 async def main_menu_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     await bot.answer_callback_query(callback.id)
-    await show_menu(bot, callback.message)
+    await show_main_menu(bot, callback.message)
 
 
 # ======================================================================================================================

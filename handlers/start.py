@@ -8,7 +8,7 @@ from telebot.types import Message
 from telebot.async_telebot import AsyncTeleBot
 from menu.keyboard_layouts import no_decks_markup
 
-from menu.menu import show_menu
+from menu.main_menu import show_main_menu
 from user.user_actions import get_user_from_db, get_user_from_cache, create_user
 from bot.bot_message import BotMessages
 
@@ -34,5 +34,5 @@ async def start(message: Message, bot: AsyncTeleBot) -> None:
             return None
 
     await bot.set_state(message.from_user.id, UserStates.menu)
-    await show_menu(bot, message)
+    await show_main_menu(bot, message)
     return None
