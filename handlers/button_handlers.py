@@ -1,8 +1,8 @@
-from user_states import UserStates
+from user.user_states import UserStates
 from redis_db.cache_actions import SetCurrentDeck
 from menu.menu import show_menu
-from bot_message import BotMessages
-from card_actions import *
+from utils.card_actions import *
+from postgres.database_actions import *
 
 
 # ======================================================================================================================
@@ -153,13 +153,13 @@ async def repeat_card_handler(callback: CallbackQuery, bot: AsyncTeleBot):
 
     if repeat_mode == 'tomorrow':
         period = RepetitionPeriods.DAY
-        reply = BotMessages.card_repeat_tomorrow
+        reply = BotMessages.CARD_REPEAT_TOMORROW
     elif repeat_mode == 'week':
         period = RepetitionPeriods.WEEK
-        reply = BotMessages.card_repeat_week
+        reply = BotMessages.CARD_REPEAT_WEEK
     else:
         period = RepetitionPeriods.MONTH
-        reply = BotMessages.card_repeat_month
+        reply = BotMessages.CARD_REPEAT_MONTH
 
     action = IncreaseCardRepetitions(user_id, deck_name, card_id)
     action.perform()

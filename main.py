@@ -5,11 +5,11 @@ It runs polling at the end of file.
 
 import asyncio
 from telebot import asyncio_filters
-from bot_init import bot
-from message_handlers.message_handlers import *
-from message_handlers.start import start
-from button_handlers import *
-from user_states import UserStates
+from bot.bot_init import bot
+from handlers.message_handlers import *
+from handlers.start import start
+from handlers.button_handlers import *
+from user.user_states import UserStates
 
 bot.register_message_handler(start, commands='start', pass_bot=True)
 

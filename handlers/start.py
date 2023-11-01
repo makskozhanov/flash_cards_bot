@@ -3,14 +3,14 @@ This file defines handler called on user command '/start'.
 It defines the first launch of the bot.
 """
 
-from user_states import UserStates
+from user.user_states import UserStates
 from telebot.types import Message
 from telebot.async_telebot import AsyncTeleBot
 from menu.keyboard_layouts import no_decks_markup
 
 from menu.menu import show_menu
-from user_actions import get_user_from_db, get_user_from_cache, create_user
-from bot_message import BotMessages
+from user.user_actions import get_user_from_db, get_user_from_cache, create_user
+from bot.bot_message import BotMessages
 
 
 async def start(message: Message, bot: AsyncTeleBot) -> None:
@@ -29,7 +29,7 @@ async def start(message: Message, bot: AsyncTeleBot) -> None:
 
         if user is None:  # There is no user in database
             create_user(message.from_user.id)
-            bot_message = BotMessages.first_login % (message.from_user.first_name, message.from_user.last_name)
+            bot_message = BotMessages.FIRST_LOGIN % (message.from_user.first_name, message.from_user.last_name)
             await bot.send_message(message.chat.id, bot_message, reply_markup=no_decks_markup)
             return None
 

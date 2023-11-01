@@ -3,13 +3,13 @@ This file defines main menu.
 Main menu is different for each user, because everyone has their own decks.
 """
 
-from deck_actions import GetDecks
+from postgres.database_actions import GetDecks
 from telebot.util import quick_markup
 from telebot.types import InlineKeyboardMarkup
 from redis_db.redis_init import redis_db
 from menu.keyboard_layouts import no_decks_markup
-from user_states import UserStates
-import utils
+from user.user_states import UserStates
+from utils.utils import hide_previous_message_keyboard
 from redis_db import cache_actions as cache
 
 
@@ -37,7 +37,7 @@ async def show_menu(bot, message) -> None:
     else:
         menu_markup = no_decks_markup
 
-    await utils.hide_previous_message_keyboard(user_id, message.chat.id, bot)
+    await hide_previous_message_keyboard(user_id, message.chat.id, bot)
     current_message = await bot.send_message(message.chat.id, 'ㅤ\n<b>Главное меню</b>\nㅤ', reply_markup=menu_markup, parse_mode='html')
     cache.SetBotMessageId(user_id, current_message.id).update_cache()
 

@@ -3,6 +3,7 @@ This file defines actions with Redis cache.
 """
 
 from redis_db.redis_init import redis_db
+from exceptions import EmptyDeckError
 
 
 class CacheAction:
@@ -89,3 +90,15 @@ class SetBotMessageId(CacheAction):
     """
     def update_cache(self):
         redis_db.hset(self._user_id, mapping={'bot_message_id': self._value})
+
+
+class SetCurrentCard(CacheAction):
+    def update_cache(self):
+        print(self._user_id, self._value, self._object_id)
+        if self._object_id == 'None':
+            raise EmptyDeckError
+
+        card = redis_db.hgetall(f'{self._user_id}:{self._value}:{self._object_id}')
+        SetCardFace(self._user_id, card['face']).update_cache()
+        SetCardBack(self._user_id, card['back']).update_cache()
+        SetCardId(self._user_id, object_id=self._object_id).update_cache()

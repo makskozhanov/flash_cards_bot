@@ -3,16 +3,16 @@ This file defines message handlers.
 Message handler is a function that is called on user input.
 """
 
-from user_states import UserStates
+from user.user_states import UserStates
 from telebot.types import Message
 from telebot.async_telebot import AsyncTeleBot
 from menu.keyboard_layouts import *
-from deck_actions import *
+from postgres.database_actions import *
 from menu.menu import show_menu
 from redis_db.redis_init import redis_db
 from redis_db.cache_actions import SetCardFace, SetCardBack
-from button_handlers import create_card_text
-from utils import hide_previous_message_keyboard
+from handlers.button_handlers import create_card_text
+from utils.utils import hide_previous_message_keyboard
 
 
 async def delete_user_input(message: Message, bot: AsyncTeleBot):
