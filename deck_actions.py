@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select, ScalarResult
-from postgres.init import engine
+from postgres.init import ENGINE
 from postgres.models import User, Deck, Card
 from exceptions import PostgresError
 from redis_db.redis_init import redis_db
@@ -35,7 +35,7 @@ class BaseAction:
         Perform given action with object
         :return: None
         """
-        with Session(engine) as self._session:
+        with Session(ENGINE) as self._session:
             try:
                 data = self._get_data()
             except Exception:
@@ -112,6 +112,7 @@ class DeleteDeck(DeckAction):
         :return: None
         """
         cache.DeleteDeck(self._user_id, self._deck_name).update_cache()
+        cache.DelCurrentDeck(self._user_id).update_cache()
 
 
 class CreateDeck(DeckAction):
@@ -337,10 +338,8 @@ class SetCardNextRepetition(CardAction):
                       str(self._card.next_repetition))
 
 
-
-
 def get_deck_by_id(deck_id: str):
-    with Session(engine) as session:
+    with Session(ENGINE) as session:
         request = select(Deck).where(Deck.id == deck_id)
         try:
             deck = session.scalar(request)

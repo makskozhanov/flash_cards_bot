@@ -1,3 +1,8 @@
+"""
+This file defines main menu.
+Main menu is different for each user, because everyone has their own decks.
+"""
+
 from deck_actions import GetDecks
 from telebot.util import quick_markup
 from telebot.types import InlineKeyboardMarkup

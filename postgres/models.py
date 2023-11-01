@@ -1,6 +1,11 @@
+"""
+This file defines SQLAlchemy models.
+Models represent both PostgreSQL tables and python objects.
+"""
+
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import String, Integer, Boolean, ForeignKey, Date
-from postgres.init import engine
+from postgres.init import ENGINE
 from typing import List, Optional
 
 
@@ -9,6 +14,9 @@ class BaseModel(DeclarativeBase):
 
 
 class User(BaseModel):
+    """
+    Represents user entity.
+    """
     __tablename__ = 'users'
     id: Mapped[str] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
@@ -17,6 +25,9 @@ class User(BaseModel):
 
 
 class Deck(BaseModel):
+    """
+    Represents deck entity.
+    """
     __tablename__ = 'decks'
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[str] = mapped_column(ForeignKey('users.id'))
@@ -27,6 +38,9 @@ class Deck(BaseModel):
 
 
 class Card(BaseModel):
+    """
+    Represents card entity.
+    """
     __tablename__ = 'cards'
     id: Mapped[int] = mapped_column(primary_key=True)
     deck_id: Mapped[str] = mapped_column(ForeignKey('decks.id'))
@@ -37,4 +51,4 @@ class Card(BaseModel):
     deck: Mapped['Deck'] = relationship(back_populates='cards')
 
 
-BaseModel.metadata.create_all(engine)
+BaseModel.metadata.create_all(ENGINE)

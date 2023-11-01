@@ -1,3 +1,8 @@
+"""
+This file is used only to register all handlers for user actions.
+It runs polling at the end of file.
+"""
+
 import asyncio
 from telebot import asyncio_filters
 from bot_init import bot
@@ -48,4 +53,6 @@ bot.register_callback_query_handler(edit_card_content_handler, func=lambda c: c.
 bot.register_callback_query_handler(deck_menu_handler, func=lambda c: True, pass_bot=True)
 
 bot.add_custom_filter(asyncio_filters.StateFilter(bot))
-asyncio.run(bot.polling())
+
+if __name__ == '__main__':
+    asyncio.run(bot.polling())

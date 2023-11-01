@@ -1,4 +1,8 @@
-import menu.menu
+"""
+This file defines message handlers.
+Message handler is a function that is called on user input.
+"""
+
 from user_states import UserStates
 from telebot.types import Message
 from telebot.async_telebot import AsyncTeleBot
@@ -6,7 +10,7 @@ from menu.keyboard_layouts import *
 from deck_actions import *
 from menu.menu import show_menu
 from redis_db.redis_init import redis_db
-from redis_db.cache_actions import DelCurrentDeck, SetCardFace, SetCardBack
+from redis_db.cache_actions import SetCardFace, SetCardBack
 from button_handlers import create_card_text
 from utils import hide_previous_message_keyboard
 
@@ -76,4 +80,3 @@ async def edit_card(message: Message, bot: AsyncTeleBot):
 
     reply = create_card_text(user_id, deck_mode)
     await bot.edit_message_text('<b>Карточка изменена:</b>\n' + reply, message.chat.id, message_to_edit, parse_mode='html', reply_markup=card_markup)
-    #await bot.delete_message(message.chat.id, message.message_id)

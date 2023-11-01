@@ -1,3 +1,7 @@
+"""
+This file defines all keyboard layouts for each user state.
+"""
+
 from telebot.util import quick_markup
 
 menu_markup = quick_markup(

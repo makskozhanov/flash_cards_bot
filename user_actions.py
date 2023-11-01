@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from postgres.init import engine
+from postgres.init import ENGINE
 from postgres.models import User
 from redis_db.redis_init import redis_db
 from exceptions import RedisError
@@ -23,14 +23,14 @@ def get_user_from_db(user_id: int):
     :return: user - if user exists, else - None
     """
     user_id = str(user_id)
-    with Session(engine) as session:
+    with Session(ENGINE) as session:
         request = select(User).where(User.id == user_id)
         user = session.scalar(request)
     return user
 
 
 def create_user(user_id):
-    with Session(engine) as session:
+    with Session(ENGINE) as session:
         user = User(id=user_id, name='Max', is_premium=False)
         session.add(user)
         session.commit()
