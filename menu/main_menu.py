@@ -25,12 +25,11 @@ async def show_main_menu(bot, message) -> None:
     record_name_in_cache = str(user_id) + ':decks'
     await bot.set_state(user_id, UserStates.menu)
 
-    if not redis_db.exists(record_name_in_cache):  # Если нет колод в кэше - берем их из бд и сохраняем в кэш
+    if not redis_db.exists(record_name_in_cache):
         action = GetDecks(user_id)
         action.perform()
 
     user_decks = redis_db.hgetall(record_name_in_cache)
-    print(user_decks)
 
     if len(user_decks) > 0:
         menu_markup = create_menu_markup(user_decks)

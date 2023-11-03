@@ -28,7 +28,7 @@ async def show_card(callback: CallbackQuery, bot: AsyncTeleBot) -> None:
         cache.SetCurrentCard(user_id, deck_name, card_id).update_cache()
     except EmptyDeckError:
         await hide_previous_message_keyboard(user_id, callback.message.chat.id, bot)
-        current_message = await bot.send_message(user_id, 'Мы повторили все карточки', reply_markup=end_of_deck_markup)
+        current_message = await bot.send_message(user_id, 'Мы повторили все карточки', reply_markup=back_to_menu_markup)
         cache.SetBotMessageId(user_id, current_message.id).update_cache()
     else:
         reply = create_card_text(user_id, deck_mode)

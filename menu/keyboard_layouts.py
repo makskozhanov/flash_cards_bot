@@ -7,7 +7,7 @@ from telebot.util import quick_markup
 menu_markup = quick_markup(
     {
         'Мои колоды': {'callback_data': 'show_decks'},
-        'Премиум-доступ': {'callback_data': '/2'},
+        'Премиум-доступ': {'callback_data': 'premium'},
 
     },
     row_width=1
@@ -15,11 +15,8 @@ menu_markup = quick_markup(
 
 no_decks_markup = quick_markup(
     {
-        'Создать колоду': {'callback_data': 'create_deck'},
-        'Демо': {'callback_data': 'demo'},
-
-    },
-    row_width=1
+        'Создать колоду': {'callback_data': 'create_deck'}
+    }
 )
 
 deck_menu_markup = quick_markup(
@@ -70,14 +67,13 @@ card_markup = quick_markup(
         'Завтра': {'callback_data': 'repeat_card:tomorrow'},
         'Через неделю': {'callback_data': 'repeat_card:week'},
         'Через месяц': {'callback_data': 'repeat_card:month'},
-        'Повторить еще': {'callback_data': 'repeat_card:now'},
         'Удалить карточку': {'callback_data': 'delete_card'},
         'Изменить карточку': {'callback_data': 'edit_card'},
         'Вернуться в меню': {'callback_data': 'show_menu'}
     }
 )
 
-end_of_deck_markup = quick_markup(
+back_to_menu_markup = quick_markup(
     {
         'Вернуться в меню': {'callback_data': 'show_menu'}
     }

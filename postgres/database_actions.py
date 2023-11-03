@@ -281,7 +281,6 @@ class GetCards(DeckAction):
     def _update_cache(self):
         ClearWordsToRepeat(self._user_id, self._deck_name).update_cache()
         for card in self._cards:
-            #self._push_card_to_cache(card)
             self._add_card_to_repetition_list(card)
 
     def _push_card_to_cache(self, card):
@@ -303,7 +302,6 @@ class GetNewCards(GetCards):
 class GetTodayCards(GetCards):
     def __init__(self, user_id, deck_name):
         super().__init__(user_id, deck_name)
-        print(date.today())
         self._request = select(Card).where(Card.next_repetition == date.today())
 
 

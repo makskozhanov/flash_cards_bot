@@ -175,5 +175,9 @@ async def repeat_card_handler(callback: CallbackQuery, bot: AsyncTeleBot):
     await show_card(callback, bot)
 
 
+# ======================================================================================================================
+# Other Handlers
 
-
+async def premium_handler(callback: CallbackQuery, bot: AsyncTeleBot):
+    await bot.send_message(callback.message.chat.id, 'Функция пока недоступна', reply_markup=back_to_menu_markup)
+    await bot.answer_callback_query(callback.id)

@@ -72,7 +72,6 @@ async def add_card_back(message: Message, bot: AsyncTeleBot):
 
 
 async def edit_card(message: Message, bot: AsyncTeleBot):
-    print(message.id)
     user_id = message.from_user.id
     deck_name = redis_db.hget(user_id, 'current_deck')
     deck_mode = redis_db.hget(user_id, 'deck_mode')

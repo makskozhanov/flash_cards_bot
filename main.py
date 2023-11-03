@@ -47,6 +47,9 @@ bot.register_callback_query_handler(add_card_face_handler, func=lambda c: c.data
 bot.register_callback_query_handler(delete_card_handler, func=lambda c: c.data == 'delete_card', pass_bot=True)
 bot.register_callback_query_handler(edit_card_handler, func=lambda c: c.data == 'edit_card', pass_bot=True)
 
+
+bot.register_callback_query_handler(premium_handler, func=lambda c: c.data == 'premium', pass_bot=True)
+
 bot.register_callback_query_handler(edit_card_content_handler, func=lambda c: c.data.startswith('edit_card:'), pass_bot=True)
 
 
