@@ -93,7 +93,6 @@ class SetBotMessageId(CacheAction):
 
 
 class SetCurrentCard(CacheAction):
-
     def update_cache(self):
         from postgres.database_actions import AddCardsToCache
         if self._object_id == 'None':

@@ -19,7 +19,7 @@ class User(BaseModel):
     """
     __tablename__ = 'users'
     id: Mapped[str] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(50))
+    name: Mapped[str] = mapped_column(String(100))
     is_premium: Mapped[bool] = mapped_column(Boolean, default=False)
     decks: Mapped[List['Deck']] = relationship(back_populates='user', cascade='all, delete-orphan')
 
@@ -44,8 +44,8 @@ class Card(BaseModel):
     __tablename__ = 'cards'
     id: Mapped[int] = mapped_column(primary_key=True)
     deck_id: Mapped[str] = mapped_column(ForeignKey('decks.id'))
-    face: Mapped[str] = mapped_column(String(300))
-    back: Mapped[str] = mapped_column(String(300))
+    face: Mapped[str] = mapped_column(String(3000))
+    back: Mapped[str] = mapped_column(String(3000))
     next_repetition: Mapped[Optional[str]] = mapped_column(Date, default=None)
     repetitions: Mapped[int] = mapped_column(Integer, default=0)
     deck: Mapped['Deck'] = relationship(back_populates='cards')

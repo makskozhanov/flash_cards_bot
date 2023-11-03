@@ -288,6 +288,7 @@ class GetCards(DeckAction):
         redis_db.hset(f'{self._user_id}:{self._deck_name}:{card.id}',
                       items=['face', card.face, 'back', card.back, 'repetitions', card.repetitions, 'next_repetition',
                              str(card.next_repetition)])
+        redis_db.expire(f'{self._user_id}:{self._deck_name}:{card.id}', 1200)
 
     def _add_card_to_repetition_list(self, card):
         redis_db.lpush(f'{self._user_id}:{self._deck_name}:cards', card.id)  # Create new list of words to repeat
