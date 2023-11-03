@@ -1,5 +1,5 @@
 """
-This file defines actions with Redis cache.
+This file defines actions with the Redis cache.
 """
 
 from redis_db.init import redis_db

@@ -1,5 +1,5 @@
 """
-This file creates instance of AsyncTeleBot and creates storage of users states.
+This file creates an instance of AsyncTeleBot and defines the storage of states.
 """
 
 import config

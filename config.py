@@ -1,6 +1,6 @@
 """
-This file defines configuration params for Redis and Postgres.
-It sets environment variables from .env file.
+This file defines configuration parameters for Redis and Postgres.
+It sets environment variables from the .env file.
 """
 
 import os

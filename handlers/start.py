@@ -1,6 +1,6 @@
 """
-This file defines handler called on user command '/start'.
-It defines the first launch of the bot.
+This file defines a handler that is triggered by the user command '/start'.
+It specifies the initial launch of the bot.
 """
 
 from user.user_states import UserStates

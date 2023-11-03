@@ -1,5 +1,5 @@
 """
-This file describes custom exceptions.
+This file is used to describe custom exceptions.
 """
 
 

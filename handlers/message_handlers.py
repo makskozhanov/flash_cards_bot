@@ -1,6 +1,5 @@
 """
-This file defines message handlers.
-Message handler is a function that is called on user input.
+This document describes functions that are triggered by user input.
 """
 
 from user.user_states import UserStates

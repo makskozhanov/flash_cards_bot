@@ -1,5 +1,5 @@
 """
-This file creates SQLAlchemy engine with given params.
+This document generates a SQLAlchemy engine using the provided parameters.
 """
 
 from sqlalchemy import create_engine

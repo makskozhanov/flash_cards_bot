@@ -1,5 +1,5 @@
 """
-This file defines auxiliary functions.
+This file is used to define help functions.
 """
 
 from telebot.async_telebot import AsyncTeleBot

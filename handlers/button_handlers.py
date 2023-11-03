@@ -1,5 +1,5 @@
 """
-Defines functions to be called on user click or tap button.
+Defines functions to perform when user clicks or taps.
 """
 
 from user.user_states import UserStates

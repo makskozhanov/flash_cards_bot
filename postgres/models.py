@@ -1,6 +1,5 @@
 """
-This file defines SQLAlchemy models.
-Models represent both PostgreSQL tables and python objects.
+This file establishes SQLAlchemy models, which serve as representations of both PostgreSQL tables and Python objects.
 """
 
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship

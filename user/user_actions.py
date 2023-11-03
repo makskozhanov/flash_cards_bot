@@ -1,5 +1,5 @@
 """
-This file defines actions with user such as: create a new user, get user from cache or database.
+This file defines actions on users such as: create new user, get user from cache or database.
 """
 
 from sqlalchemy.orm import Session

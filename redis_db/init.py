@@ -1,5 +1,5 @@
 """
-This file defines instance or Redis client.
+This file defines a Redis client instance.
 """
 
 import redis

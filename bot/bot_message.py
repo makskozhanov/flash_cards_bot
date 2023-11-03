@@ -1,5 +1,5 @@
 """
-This file defines text of messages, which bot sends to users.
+This file contains the messages that the bot sends the user.
 """
 
 

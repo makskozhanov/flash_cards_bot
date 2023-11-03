@@ -1,6 +1,5 @@
 """
-This file defines actions with decks and cards, related to database,
-such as create, delete, rename or edit.
+This file outlines actions related to decks and cards within a database, including their creation, deletion, renaming, and editing.
 """
 
 from sqlalchemy.orm import Session

@@ -1,6 +1,6 @@
 """
-This file defines main menu.
-Main menu is different for each user, because everyone has their own decks.
+This document defines the main menu.
+The main menu varies for each user as they have their own decks.
 """
 
 from postgres.database_actions import GetDecks

@@ -1,5 +1,5 @@
 """
-This file defines user states which are required for assigning handlers.
+This file defines the user states needed to assign handlers.
 """
 
 

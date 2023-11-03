@@ -1,6 +1,6 @@
 """
-This file is used only to register all handlers for user actions.
-It runs polling at the end of file.
+This file is only used to register all the handlers for user actions.
+It starts bot.
 """
 
 import asyncio
