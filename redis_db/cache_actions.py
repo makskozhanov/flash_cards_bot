@@ -20,7 +20,7 @@ class CacheAction:
         raise NotImplementedError
 
 
-class DeleteDeck(CacheAction):
+class RemoveDeck(CacheAction):
     """
     Deletes deck from cache.
     """

@@ -12,7 +12,7 @@ from redis_db.init import redis_db
 from datetime import date, timedelta
 from enum import Enum
 from typing import Protocol
-from redis_db.cache_actions import DeleteDeck, DelCurrentDeck, AddDeck, ClearWordsToRepeat
+from redis_db.cache_actions import RemoveDeck, DelCurrentDeck, AddDeck, ClearWordsToRepeat
 
 
 class RepetitionPeriods(Enum):
@@ -116,7 +116,7 @@ class DeleteDeck(DeckAction):
         Deletes deck from cache
         :return: None
         """
-        DeleteDeck(self._user_id, self._deck_name).update_cache()
+        RemoveDeck(self._user_id, self._deck_name).update_cache()
         DelCurrentDeck(self._user_id).update_cache()
 
 
