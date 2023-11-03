@@ -28,6 +28,7 @@ It sets environment variables from the .env file.
 ### exceptions
 This file is used to describe custom exceptions.
 
+---
 ### bot
 #### init
 This file creates an
@@ -36,6 +37,7 @@ instance of AsyncTeleBot and defines the storage of states.
 #### bot_message
 This file contains the messages that the bot sends the user.
 
+---
 ### handlers
 #### button_handlers
 Defines functions to perform when user clicks or taps.
@@ -47,6 +49,7 @@ This document describes functions that are triggered by user input.
 This file defines a handler that is triggered by the user command '/start'.
 It specifies the initial launch of the bot.
 
+---
 ### menu
 #### keyboard_layouts
 This document describes the keyboard layouts for each user state.
@@ -55,6 +58,7 @@ This document describes the keyboard layouts for each user state.
 This document defines the main menu.
 The main menu varies for each user as they have their own decks.
 
+---
 ### postgres
 #### init
 This document generates a SQLAlchemy engine using the provided parameters.
@@ -65,6 +69,7 @@ This file establishes SQLAlchemy models, which serve as representations of both 
 #### database_actions
 This file outlines actions related to decks and cards within a database, including their creation, deletion, renaming, and editing.
 
+---
 ### redis_db
 #### init
 This file defines a Redis client instance.
@@ -72,12 +77,15 @@ This file defines a Redis client instance.
 #### cache_actions
 This file defines actions with the Redis cache.
 
+---
 ### user
 #### user_ations
 This file defines actions on users such as: create new user, get user from cache or database.
 
 #### user_states
+This file defines the user states needed to assign handlers.
 
+---
 ### utils
 #### card_actions
 This file defines the user states needed to assign handlers.
