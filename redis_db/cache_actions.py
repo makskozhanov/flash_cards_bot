@@ -93,10 +93,14 @@ class SetBotMessageId(CacheAction):
 
 
 class SetCurrentCard(CacheAction):
+
     def update_cache(self):
-        print(self._user_id, self._value, self._object_id)
+        from postgres.database_actions import AddCardsToCache
         if self._object_id == 'None':
             raise EmptyDeckError
+
+        if not redis_db.exists(f'{self._user_id}:{self._value}:{self._object_id}'):
+            AddCardsToCache(self._user_id, self._value, self._object_id).perform()
 
         card = redis_db.hgetall(f'{self._user_id}:{self._value}:{self._object_id}')
         SetCardFace(self._user_id, card['face']).update_cache()

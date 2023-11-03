@@ -93,8 +93,8 @@ async def learn_mode_handler(callback: CallbackQuery, bot: AsyncTeleBot):
         action = GetNewCards(user_id, deck_name)
     else:
         action = GetTodayCards(user_id, deck_name)
-
     action.perform()
+
     await bot.answer_callback_query(callback.id)
 
     await hide_previous_message_keyboard(user_id, callback.message.chat.id, bot)

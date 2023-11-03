@@ -12,7 +12,7 @@ from redis_db.init import redis_db
 from datetime import date, timedelta
 from enum import Enum
 from typing import Protocol
-import redis_db.cache_actions as cache
+from redis_db.cache_actions import DeleteDeck, DelCurrentDeck, AddDeck, ClearWordsToRepeat
 
 
 class RepetitionPeriods(Enum):
@@ -116,8 +116,8 @@ class DeleteDeck(DeckAction):
         Deletes deck from cache
         :return: None
         """
-        cache.DeleteDeck(self._user_id, self._deck_name).update_cache()
-        cache.DelCurrentDeck(self._user_id).update_cache()
+        DeleteDeck(self._user_id, self._deck_name).update_cache()
+        DelCurrentDeck(self._user_id).update_cache()
 
 
 class CreateDeck(DeckAction):
@@ -142,7 +142,7 @@ class CreateDeck(DeckAction):
         Inserts deck into cache
         :return: None
         """
-        cache.AddDeck(self._user_id, self._deck_name, self._deck.id).update_cache()
+        AddDeck(self._user_id, self._deck_name, self._deck.id).update_cache()
 
 
 class GetDecks(DeckAction):
@@ -158,7 +158,7 @@ class GetDecks(DeckAction):
 
     def _update_cache(self) -> None:
         for deck in self._decks:
-            cache.AddDeck(self._user_id, deck.name, deck.id).update_cache()
+            AddDeck(self._user_id, deck.name, deck.id).update_cache()
 
 
 class RenameDeck(DeckAction):
@@ -279,9 +279,9 @@ class GetCards(DeckAction):
         self._cards = data
 
     def _update_cache(self):
-        cache.ClearWordsToRepeat(self._user_id, self._deck_name).update_cache()
+        ClearWordsToRepeat(self._user_id, self._deck_name).update_cache()
         for card in self._cards:
-            self._push_card_to_cache(card)
+            #self._push_card_to_cache(card)
             self._add_card_to_repetition_list(card)
 
     def _push_card_to_cache(self, card):
@@ -304,6 +304,25 @@ class GetTodayCards(GetCards):
         super().__init__(user_id, deck_name)
         print(date.today())
         self._request = select(Card).where(Card.next_repetition == date.today())
+
+
+class AddCardsToCache(GetCards):
+    def __init__(self, user_id, deck_name, card_id):
+        super().__init__(user_id, deck_name)
+        self._card_id = card_id
+        self.card_list = redis_db.lrange(f'{self._user_id}:{self._deck_name}:cards', 0, 3)
+        self.card_list.append(self._card_id)
+        self._request = select(Card).where(Card.id.in_(self.card_list))
+
+    def _get_data(self):
+        return self._session.scalars(self._request).all()
+
+    def _commit_action(self, data: ScalarResult):
+        self._cards = data
+
+    def _update_cache(self):
+        for card in self._cards:
+            self._push_card_to_cache(card)
 
 
 class IncreaseCardRepetitions(CardAction):
