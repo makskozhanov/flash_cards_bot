@@ -4,7 +4,7 @@
 This bot was created as a pet project.
 It allows you to create and learn flashcards.
 
-[Try it](t.me/KozhanBot)
+[Try it](https://t.me/KozhanBot)
 
 ## How to use
 Once you have a bot running, you can create a deck.
